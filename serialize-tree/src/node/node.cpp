@@ -23,13 +23,8 @@ template <class T>
 void Node<T>::serialize(std::ofstream& out)
 {
     const auto size = this->childs_.size();
-    const auto type_id = typeid(this->value_).name();
 
-    if (std::string(type_id).compare("i") != 0 && std::string(type_id).compare("d") != 0) {
-        out << "\"" << this->value_ << "\"" << ":{";
-    } else {
-        out << this->value_ << ":{";
-    }
+    out << this->value_ << ":{";
     for (size_t i = 0; i < size; ++i) {
         this->childs_[i]->serialize(out);
         if (i != size- 1) {
@@ -42,14 +37,7 @@ void Node<T>::serialize(std::ofstream& out)
 template <class T>
 void Node<T>::print()
 {
-    const auto type_id = typeid(this->value_).name();
-
-    if (std::string(type_id).compare("i") != 0 && std::string(type_id).compare("d") != 0) {
-        std::cout << "\"" << this->value_ << "\"" << std::endl;
-    } else {
-        std::cout << this->value_ << std::endl;
-    }
-
+    std::cout << this->value_ << std::endl;
     for (auto& i : this->childs_) {
         i->print();
     }
@@ -85,8 +73,7 @@ std::tuple<int, std::string, std::string> parseNode(const std::string& in)
     {
         type = 1; // double
     }
-
-    return std::make_tuple(type, value, std::string(in.c_str(), pos+1+2, std::string::npos-2));
+    return std::make_tuple(type, value, std::string(in.c_str(), pos+1+1, in.size()-(pos+1+1)-1));
 }
 
 std::unique_ptr<INode> createNode(int type, std::string value)
@@ -173,6 +160,33 @@ std::unique_ptr<INode> Parser::deserialize(std::string& in)
     if (body.compare("{}") == 0)
     {
         return node;
+    }
+
+    std::cout << "body: " << body << std::endl;
+
+    auto start_idx = 0;
+    auto brackets = 0;
+    for (size_t i = 0; i < body.size(); ++i)
+    {
+        switch (body[i])
+        {
+        case '{':
+            brackets++;
+            break;
+        case '}':
+            brackets--;
+            if (brackets == 0)
+            {
+                auto child_str = std::string(body, start_idx, i+1);
+                std::cout << " # " << child_str << std::endl;
+                auto tmp =  Parser::deserialize(child_str);
+                node->add(tmp);
+                start_idx = i + 1 + 1;
+            }
+            break;
+        default:
+            break;
+        }
     }
     /*
     for (auto child : parseChilds(body))
