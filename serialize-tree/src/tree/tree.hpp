@@ -6,11 +6,11 @@
 class Tree
 {
     public:
-        explicit Tree();
-        ~Tree();
+        Tree() = default;
+        ~Tree() = default;
 
-        void serialize(const char* file);
-        void deserialize(const char* file);
+        void deserialize(const char* in);
+        void serialize(const char* out);
         void print();
 
     private:

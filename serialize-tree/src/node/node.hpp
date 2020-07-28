@@ -30,15 +30,15 @@ class Node: public INode
         ~Node() = default;
 
         void add(std::unique_ptr<INode>& node);
+
         void serialize(std::ofstream& out);
 
         void debug();
         void print();
 };
 
-
-class Factory
+class Parser
 {
     public:
-        static auto deserialize(std::string in) -> std::unique_ptr<INode>;
+        static std::unique_ptr<INode> deserialize(std::string& in);
 };

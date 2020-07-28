@@ -141,8 +141,33 @@ std::vector<INode> parseChilds(const std::string& str)
     return childs;
 }
 
-auto Factory::deserialize(std::string in) -> std::unique_ptr<INode>
+bool is_valid(std::string& str)
 {
+    auto brackets = 0;
+    for (const auto& ch : str)
+    {
+        switch (ch)
+        {
+        case '{':
+            brackets++;
+            break;
+        case '}':
+            brackets--;
+            break;
+        default:
+            break;
+        }
+    }
+    return brackets ? false: true;
+}
+
+std::unique_ptr<INode> Parser::deserialize(std::string& in)
+{
+    if (!is_valid(in))
+    {
+        throw std::string("not vaild deserilze string");
+    }
+
     auto [type, value, body] = parseNode(in);
     auto node = createNode(type, value);
     if (body.compare("{}") == 0)

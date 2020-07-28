@@ -3,15 +3,24 @@
 #include <iostream>
 #include <fstream>
 
-
-Tree::Tree()
+void Tree::deserialize(const char* file)
 {
+    if (file == nullptr)
+    {
+        throw std::string("deserialize file null");
+    }
 
-}
+    std::ifstream in(file, std::ifstream::in);
+    if (!in.is_open())
+    {
+        throw std::string("can't open deserialize file");
+    }
 
-Tree::~Tree()
-{
+    std::string line;
+    std::getline(in, line);
+    in.close();
 
+    this->root_ = Parser::deserialize(line);
 }
 
 void Tree::serialize(const char* file)
@@ -31,25 +40,6 @@ void Tree::serialize(const char* file)
     out.close();
 }
 
-void Tree::deserialize(const char* file)
-{
-    if (file == nullptr)
-    {
-        throw std::string("deserialize file null");
-    }
-
-    std::ifstream in(file, std::ifstream::in);
-    if (!in.is_open())
-    {
-        throw std::string("can't open deserialize file");
-    }
-
-    std::string line;
-    std::getline(in, line);
-    in.close();
-
-    this->root_ = Factory::deserialize(line); // TODO: node::deserialize!
-}
 
 void Tree::print()
 {
