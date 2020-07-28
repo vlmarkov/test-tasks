@@ -1,22 +1,9 @@
 #pragma once
 
+#include <node/i-node.hpp>
+
 #include <vector>
 #include <string>
-#include <memory>
-#include <fstream>
-
-class INode
-{
-    public:
-        INode() = default;
-        virtual ~INode() = default;
-
-        virtual void add(std::unique_ptr<INode>& node) = 0;
-        virtual void serialize(std::ofstream& out) = 0;
-
-        virtual void debug() = 0;
-        virtual void print() = 0;
-};
 
 template <typename T>
 class Node: public INode
@@ -35,10 +22,4 @@ class Node: public INode
 
         void debug();
         void print();
-};
-
-class Parser
-{
-    public:
-        static std::unique_ptr<INode> deserialize(std::string& in);
 };

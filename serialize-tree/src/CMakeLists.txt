@@ -8,9 +8,10 @@ add_executable(serialize-tree main.cpp)
 
 add_subdirectory(node)
 add_subdirectory(tree)
-
+add_subdirectory(parser)
 
 target_link_libraries(serialize-tree
                       tree-lib
+                      parser-lib
                       node-lib)
 
