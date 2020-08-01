@@ -33,9 +33,10 @@
 * Implement tree serialization into file
 * Implement tree deserialization from file
 * Implement tree print function
-* Implement as command-line application (-i [INPUT FILE] -o [OUTPUT FILE])
+* Implement as command-line application (`-i [INPUT FILE] -o [OUTPUT FILE]`)
 
 ## 2. Features
+
 * Pure C++ (without additional libraries)
 * C++17 standard
 * `serialize()`, `deserialize()`, `print()`
@@ -45,5 +46,6 @@
 * Serialize tree format checking
 
 ## 3. How to
+
 1. `make && make test`
 2. `./serialize-tree -i input.txt -o output.txt`

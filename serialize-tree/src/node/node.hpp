@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 
+
+#include <iostream>
+
 template <typename T>
 class Node: public INode
 {
