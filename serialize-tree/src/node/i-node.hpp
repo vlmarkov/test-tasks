@@ -9,7 +9,8 @@ class INode
         INode() = default;
         virtual ~INode() = default;
 
-        virtual void add(std::unique_ptr<INode>& node) = 0;
+        virtual void add_child(std::unique_ptr<INode>&& node) = 0;
+
         virtual void serialize(std::ofstream& out) = 0;
 
         virtual void debug() = 0;

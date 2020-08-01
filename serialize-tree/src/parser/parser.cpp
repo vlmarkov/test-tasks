@@ -94,8 +94,7 @@ std::unique_ptr<INode> Parser::deserialize(std::string& in)
             if (brackets == 0)
             {
                 auto child_str = std::string(body, start_idx, i+1);
-                auto tmp =  Parser::deserialize(child_str);
-                node->add(tmp);
+                node->add_child(Parser::deserialize(child_str));
                 start_idx = i + 1 + 1;
             }
             break;
