@@ -3,10 +3,26 @@
 #include <iostream>
 #include <tuple>
 
+#include <string.h>
 
-static std::tuple<int, std::string, std::string> parseNode(const std::string& in) 
+
+static auto new_node_(node::type t, std::string v) -> std::unique_ptr<INode>
 {
-    size_t pos = in.find(":");
+    switch (t)
+    {
+        case node::type::integer:
+            return std::make_unique<Node<int>>(std::stoi(v));
+        case node::type::real:
+            return std::make_unique<Node<double>>(std::stod(v));
+        case node::type::string:
+            return std::make_unique<Node<std::string>>(v);
+    }
+    // TODO:: exception
+}
+
+static auto deserialize_node_(const std::string& in) -> std::tuple<node::type, std::string, std::string>
+{
+    size_t pos = in.find(node::body_div);
     if (pos == std::string::npos)
     {
         throw std::string("malformed deserialize file");
@@ -14,68 +30,48 @@ static std::tuple<int, std::string, std::string> parseNode(const std::string& in
 
     auto value = std::string(in.c_str(), 0, pos);
 
-    int type = 0; // int
+    auto type = node::type::integer;
     if (value.find("\"") != std::string::npos)
     {
-        type = 2; // string
+        type = node::type::string;
     }
     else if (value.find(".") != std::string::npos)
     {
-        type = 1; // double
+        type = node::type::real;
     }
-    return std::make_tuple(type, value, std::string(in.c_str(), pos+1+1, in.size()-(pos+1+1)-1));
+
+    const auto start = pos + sizeof(node::body_div) + sizeof(node::body_start);
+    const auto end = in.size() - start - 1;
+
+    return std::make_tuple(type, value, std::string(in.c_str(), start, end));
 }
 
-static std::unique_ptr<INode> createNode(int type, std::string value)
+namespace parser
 {
-    std::unique_ptr<INode> root;
-    switch (type)
+
+std::tuple<const char*, const char*> cmd_line(int argc, char const *argv[])
+{
+    if (argc != 5)
     {
-        case 0: // int
-            root = std::make_unique<Node<int>>(std::stoi(value));
-            break;
-        case 1: // double
-            root = std::make_unique<Node<double>>(std::stod(value));
-            break;
-        case 2: // string
-            root = std::make_unique<Node<std::string>>(value);
-            break;
-    default:
-        break;
+        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
     }
-    return root;
+    if (::strcmp(argv[1], "-i") != 0)
+    {
+        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
+    }
+    if (::strcmp(argv[3], "-o") != 0)
+    {
+        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
+    }
+    return std::make_tuple(argv[2], argv[4]);
 }
 
-static bool is_valid(std::string& str)
-{
-    auto brackets = 0;
-    for (const auto& ch : str)
-    {
-        switch (ch)
-        {
-        case '{':
-            brackets++;
-            break;
-        case '}':
-            brackets--;
-            break;
-        default:
-            break;
-        }
-    }
-    return brackets ? false: true;
-}
 
-std::unique_ptr<INode> Parser::deserialize(std::string& in)
+std::unique_ptr<INode> deserialize(std::string& str)
 {
-    if (!is_valid(in))
-    {
-        throw std::string("not valid deserialize string");
-    }
-
-    auto [type, value, body] = parseNode(in);
-    auto node = createNode(type, value);
-    if (body.compare("{}") == 0)
+    auto [type, value, body] = deserialize_node_(str);
+    auto node = new_node_(type, value);
+    if (body.compare(node::node_empty) == 0)
     {
         return node;
     }
@@ -86,22 +82,41 @@ std::unique_ptr<INode> Parser::deserialize(std::string& in)
     {
         switch (body[i])
         {
-        case '{':
-            brackets++;
-            break;
-        case '}':
-            brackets--;
-            if (brackets == 0)
-            {
-                auto child_str = std::string(body, start_idx, i+1);
-                node->add_child(Parser::deserialize(child_str));
-                start_idx = i + 1 + 1;
-            }
-            break;
-        default:
-            break;
+            case node::body_start:
+                brackets++;
+                break;
+            case node::body_end:
+                brackets--;
+                if (brackets == 0)
+                {
+                    const auto indent = i + sizeof(node::body_end);
+                    auto child_str = std::string(body, start_idx, indent);
+                    node->add_child(parser::deserialize(child_str));
+                    start_idx = indent + sizeof(node::node_div);
+                }
+                break;
         }
     }
 
     return node;
 }
+
+/*
+ * Very simple cheker, without additional logic
+ */
+bool check_deserialize(const std::string& str)
+{
+    auto brackets = 0;
+    for (const auto& ch : str)
+    {
+        switch (ch)
+        {
+            case node::body_start: brackets++; break;
+            case node::body_end: brackets--; break;
+        }
+    }
+
+    return brackets ? false: true;
+}
+
+};

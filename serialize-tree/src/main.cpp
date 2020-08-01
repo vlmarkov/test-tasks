@@ -1,29 +1,19 @@
 #include <tree/tree.hpp>
+#include <parser/parser.hpp>
 
 #include <iostream>
 
 
-void usage()
+int main(int argc, char const* argv[])
 {
-    std::cerr << "usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]" << std::endl;
-}
-
-int main(int argc, char const *argv[])
-{
-    // TODO: cmd-line arguments parsing
-
-    if (argc != 3)
-    {
-        usage();
-        return -1;
-    }
-
     try
     {
+        auto [in, out] = parser::cmd_line(argc, argv);
+
         Tree tree;
-        tree.deserialize(argv[1]);
+        tree.deserialize(in);
         tree.print();
-        tree.serialize(argv[2]);
+        tree.serialize(out);
     }
     catch (std::string error)
     {

@@ -11,6 +11,7 @@ constexpr char body_div   = ':';
 constexpr char body_start = '{';
 constexpr char body_end   = '}';
 constexpr char node_div   = ',';
+constexpr char node_empty[] = { body_start, body_end };
 
 enum class type { integer, real, string };
 };

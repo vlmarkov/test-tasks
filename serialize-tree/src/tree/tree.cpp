@@ -29,7 +29,12 @@ void Tree::deserialize(const char* file)
         this->root_.reset();
     }
 
-    this->root_ = Parser::deserialize(line);
+    if (!parser::check_deserialize(line))
+    {
+        throw std::string("invalid deserialize");
+    }
+
+    this->root_ = parser::deserialize(line);
 }
 
 /*
