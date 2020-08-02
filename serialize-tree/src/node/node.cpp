@@ -11,18 +11,23 @@ template class Node<int>;
 template class Node<double>;
 template class Node<std::string>;
 
+template <class T>
+Node<T>::Node(T value) : value_(value)
+{
+    ;
+}
 
 template <class T>
-void Node<T>::add_child(std::unique_ptr<INode>&& node)
+void Node<T>::add_child(u_inode_ptr&& node)
 {
-    this->childs_.emplace_back(std::move(node));
+    childs_.emplace_back(std::move(node));
 }
 
 template <class T>
 void Node<T>::serialize(std::ofstream& out)
 {
-    const auto size = this->childs_.size();
-    out << this->value_ <<  node::body_div << node::body_start;
+    const auto size = childs_.size();
+    out << value_ <<  node::body_div << node::body_start;
     for (size_t i = 0; i < size; ++i) {
         this->childs_[i]->serialize(out);
         if (i != size- 1) {
@@ -35,8 +40,8 @@ void Node<T>::serialize(std::ofstream& out)
 template <class T>
 void Node<T>::print()
 {
-    std::cout << this->value_ << std::endl;
-    for (auto& i : this->childs_) {
+    std::cout << value_ << std::endl;
+    for (auto& i : childs_) {
         i->print();
     }
 }
@@ -44,10 +49,10 @@ void Node<T>::print()
 template <class T>
 void Node<T>::debug()
 {
-    std::cout << "Value  : " << this->value_ << std::endl;
-    std::cout << "Type   : " << typeid(this->value_).name() << std::endl;
-    std::cout << "Childs : " << this->childs_.size() << std::endl;
-    for (auto& i : this->childs_) {
+    std::cout << "Value  : " << value_ << std::endl;
+    std::cout << "Type   : " << typeid(value_).name() << std::endl;
+    std::cout << "Childs : " << childs_.size() << std::endl;
+    for (auto& i : childs_) {
         i->debug();
     }
 }

@@ -23,16 +23,14 @@ class Node: public INode
 {
     private:
         T value_;
-        std::vector<std::unique_ptr<INode>> childs_;
+        std::vector<u_inode_ptr> childs_;
 
     public:
-        explicit Node(T value) : value_(value) {}
+        explicit Node(T value);
         ~Node() = default;
 
-        void add_child(std::unique_ptr<INode>&& node);
-
-        void serialize(std::ofstream& out);
-
-        void debug();
-        void print();
+        void add_child(u_inode_ptr&& node) override;
+        void serialize(std::ofstream& out) override;
+        void debug() override;
+        void print() override;
 };

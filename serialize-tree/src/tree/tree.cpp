@@ -30,9 +30,9 @@ void Tree::deserialize(const char* file)
         return; // An empty file
     }
 
-    if (this->root_ != nullptr)
+    if (root_ != nullptr)
     {
-        this->root_.reset();
+        root_.reset();
     }
 
     if (!parser::check_deserialize(line))
@@ -40,7 +40,7 @@ void Tree::deserialize(const char* file)
         throw Exception("malformed deserialize string");
     }
 
-    this->root_ = parser::deserialize(line);
+    root_ = parser::deserialize(line);
 }
 
 /*
@@ -48,7 +48,7 @@ void Tree::deserialize(const char* file)
  */
 void Tree::serialize(const char* file)
 {
-    if (this->root_ == nullptr)
+    if (root_ == nullptr)
     {
         return;
     }
@@ -64,7 +64,7 @@ void Tree::serialize(const char* file)
         throw Exception("can't open serialize file");
     }
 
-    this->root_->serialize(ofs);
+    root_->serialize(ofs);
     ofs.close();
 }
 
@@ -73,8 +73,8 @@ void Tree::serialize(const char* file)
  */
 void Tree::print()
 {
-    if (this->root_ != nullptr)
+    if (root_ != nullptr)
     {
-        this->root_->print();
+        root_->print();
     }
 }
