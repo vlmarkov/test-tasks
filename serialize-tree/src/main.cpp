@@ -1,5 +1,6 @@
 #include <tree/tree.hpp>
 #include <parser/parser.hpp>
+#include <exception/exception.hpp>
 
 #include <iostream>
 
@@ -15,15 +16,15 @@ int main(int argc, char const* argv[])
         tree.print();
         tree.serialize(out);
     }
-    catch (std::string error)
+    catch (Exception& e)
     {
-        std::cerr << error << std::endl;
-        return -2;
+        std::cerr << e.what() << std::endl;
+        return e.code();
     }
     catch (...)
     {
         std::cerr << "unhandled exception" << std::endl;
-        return -3;
+        return -1;
     }
 
     return 0;

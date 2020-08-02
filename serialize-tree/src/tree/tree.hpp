@@ -3,7 +3,7 @@
 #include <node/node.hpp>
 
 /*
- * For more Tree structure details see feadme file
+ * For more Tree structure details see readme file
  */
 class Tree
 {

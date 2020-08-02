@@ -1,4 +1,5 @@
 #include <parser/parser.hpp>
+#include <exception/exception.hpp>
 
 #include <iostream>
 #include <tuple>
@@ -17,7 +18,7 @@ static auto new_node_(node::type t, std::string v) -> std::unique_ptr<INode>
         case node::type::string:
             return std::make_unique<Node<std::string>>(v);
     }
-    // TODO:: exception
+    throw Exception("unknown Node type");
 }
 
 static auto deserialize_node_(const std::string& in) -> std::tuple<node::type, std::string, std::string>
@@ -25,12 +26,13 @@ static auto deserialize_node_(const std::string& in) -> std::tuple<node::type, s
     size_t pos = in.find(node::body_div);
     if (pos == std::string::npos)
     {
-        throw std::string("malformed deserialize file");
+        throw Exception("malformed deserialize file");
     }
 
     auto value = std::string(in.c_str(), 0, pos);
 
     auto type = node::type::integer;
+    // TODO: dosen't allow special symbols inside Node value
     if (value.find("\"") != std::string::npos)
     {
         type = node::type::string;
@@ -53,16 +55,17 @@ std::tuple<const char*, const char*> cmd_line(int argc, char const *argv[])
 {
     if (argc != 5)
     {
-        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
+        throw Exception("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
     }
     if (::strcmp(argv[1], "-i") != 0)
     {
-        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
+        throw Exception("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
     }
     if (::strcmp(argv[3], "-o") != 0)
     {
-        throw std::string("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
+        throw Exception("usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]");
     }
+
     return std::make_tuple(argv[2], argv[4]);
 }
 

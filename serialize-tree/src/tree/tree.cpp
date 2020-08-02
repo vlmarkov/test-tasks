@@ -1,5 +1,6 @@
 #include <tree/tree.hpp>
 #include <parser/parser.hpp>
+#include <exception/exception.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -11,13 +12,13 @@ void Tree::deserialize(const char* file)
 {
     if (file == nullptr)
     {
-        throw std::string("deserialize file null");
+        throw Exception("deserialize file is null");
     }
 
     std::ifstream ifs(file, std::ifstream::in);
     if (!ifs.is_open())
     {
-        throw std::string("can't open deserialize file");
+        throw Exception("can't open deserialize file");
     }
 
     std::string line;
@@ -31,7 +32,7 @@ void Tree::deserialize(const char* file)
 
     if (!parser::check_deserialize(line))
     {
-        throw std::string("invalid deserialize");
+        throw Exception("malformed deserialize string");
     }
 
     this->root_ = parser::deserialize(line);
@@ -49,13 +50,13 @@ void Tree::serialize(const char* file)
 
     if (file == nullptr)
     {
-        throw std::string("serialize file null");
+        throw Exception("serialize file is null");
     }
 
     std::ofstream ofs(file, std::ofstream::out);
     if (!ofs.is_open())
     {
-        throw std::string("can't open serialize file");
+        throw Exception("can't open serialize file");
     }
 
     this->root_->serialize(ofs);
