@@ -6,7 +6,6 @@
 class INode
 {
     public:
-        INode() = default;
         virtual ~INode() = default;
 
         virtual void add_child(std::unique_ptr<INode>&& node) = 0;

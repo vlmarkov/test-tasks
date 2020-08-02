@@ -122,4 +122,4 @@ bool check_deserialize(const std::string& str)
     return brackets ? false: true;
 }
 
-};
+}; // parser
