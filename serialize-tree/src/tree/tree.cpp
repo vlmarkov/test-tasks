@@ -25,6 +25,11 @@ void Tree::deserialize(const char* file)
     std::getline(ifs, line);
     ifs.close();
 
+    if (line.size() == 0)
+    {
+        return; // An empty file
+    }
+
     if (this->root_ != nullptr)
     {
         this->root_.reset();
