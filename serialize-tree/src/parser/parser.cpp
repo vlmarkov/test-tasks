@@ -23,6 +23,7 @@ static u_inode_ptr new_node_(node::type t, std::string v)
 
 static auto deserialize_node_(const std::string& in)
 {
+    // TODO: support ignoring special symbols inside Node value
     size_t pos = in.find(node::body_div);
     if (pos == std::string::npos)
     {
@@ -87,6 +88,10 @@ u_inode_ptr deserialize(std::string& str)
     auto brackets = 0;
     for (size_t i = 0; i < body.size(); ++i)
     {
+        // TODO: instead of each time finds Node's borders
+        //       we could go through and create Nodes on fly
+        //       in order to reduce algorithm complexity
+        //       but we need to maintain Node's relationship
         switch (body[i])
         {
             case node::body_start:
