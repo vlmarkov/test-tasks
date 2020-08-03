@@ -18,7 +18,7 @@ int main(int argc, char const* argv[])
     }
     catch (Exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << " (" << e.code() << ")" << std::endl;
         return e.code();
     }
     catch (...)

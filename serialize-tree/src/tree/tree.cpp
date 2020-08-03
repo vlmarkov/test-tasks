@@ -5,6 +5,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <cerrno>
+
+
 /*
  * deserialize - deserializes file content to the Tree
  */
@@ -12,13 +15,13 @@ void Tree::deserialize(const char* file)
 {
     if (file == nullptr)
     {
-        throw Exception("deserialize file is null");
+        throw Exception("deserialize file is null", static_cast<int>(errors::null));
     }
 
     std::ifstream ifs(file, std::ifstream::in);
     if (!ifs.is_open())
     {
-        throw Exception("can't open deserialize file");
+        throw Exception("can't open deserialize file", errno);
     }
 
     std::string line;
@@ -37,7 +40,7 @@ void Tree::deserialize(const char* file)
 
     if (!parser::check_deserialize(line))
     {
-        throw Exception("malformed deserialize string");
+        throw Exception("malformed deserialize string", static_cast<int>(errors::null));
     }
 
     root_ = parser::deserialize(line);
@@ -55,13 +58,13 @@ void Tree::serialize(const char* file)
 
     if (file == nullptr)
     {
-        throw Exception("serialize file is null");
+        throw Exception("serialize file is null", static_cast<int>(errors::null));
     }
 
     std::ofstream ofs(file, std::ofstream::out);
     if (!ofs.is_open())
     {
-        throw Exception("can't open serialize file");
+        throw Exception("can't open serialize file", errno);
     }
 
     root_->serialize(ofs);

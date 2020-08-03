@@ -18,7 +18,7 @@ static u_inode_ptr new_node_(node::type t, std::string v)
         case node::type::string:
             return std::make_unique<Node<std::string>>(v);
     }
-    throw Exception("unknown Node type");
+    throw Exception("unknown Node type", static_cast<int>(errors::type));
 }
 
 static auto deserialize_node_(const std::string& in)
@@ -27,7 +27,7 @@ static auto deserialize_node_(const std::string& in)
     size_t pos = in.find(node::body_div);
     if (pos == std::string::npos)
     {
-        throw Exception("malformed deserialize file");
+        throw Exception("malformed deserialize file", static_cast<int>(errors::malformed));
     }
 
     auto value = std::string(in.c_str(), 0, pos);
@@ -58,15 +58,15 @@ std::tuple<const char*, const char*> cmd_line(int argc, char const *argv[])
 
     if (argc != 5)
     {
-        throw Exception(usage);
+        throw Exception(usage, static_cast<int>(errors::cmdline));
     }
     if (::strcmp(argv[1], "-i") != 0)
     {
-        throw Exception(usage);
+        throw Exception(usage, static_cast<int>(errors::cmdline));
     }
     if (::strcmp(argv[3], "-o") != 0)
     {
-        throw Exception(usage);
+        throw Exception(usage, static_cast<int>(errors::cmdline));
     }
 
     return std::make_tuple(argv[2], argv[4]);

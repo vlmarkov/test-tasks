@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <stdio.h>
+#include <cerrno>
 
 
 class TestWriter
@@ -48,7 +49,7 @@ int compare(const char* file, const char* sample)
     std::ifstream ifs(file, std::ifstream::in);
     if (!ifs.is_open())
     {
-        throw Exception("can't open deserialize file");
+        throw Exception("can't open deserialize file", errno);
     }
 
     std::string line;

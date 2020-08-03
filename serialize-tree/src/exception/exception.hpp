@@ -4,10 +4,12 @@
 #include <exception>
 
 
+enum class errors{ none, null, malformed, type, cmdline };
+
 class Exception : public std::exception
 {
     public:
-        Exception(const char* err, int code = -1);
+        Exception(const char* err, int code);
         ~Exception() = default;
 
         virtual const char* what() const noexcept override;
