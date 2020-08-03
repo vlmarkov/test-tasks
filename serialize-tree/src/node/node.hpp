@@ -8,11 +8,11 @@
 namespace node
 {
 
-constexpr char body_div   = ':';
-constexpr char body_start = '{';
-constexpr char body_end   = '}';
-constexpr char node_div   = ',';
-constexpr char node_empty[] = { body_start, body_end };
+const char body_div   = ':';
+const char body_start = '{';
+const char body_end   = '}';
+const char node_div   = ',';
+const char node_empty[] = { body_start, body_end };
 
 enum class type { integer, real, string };
 
