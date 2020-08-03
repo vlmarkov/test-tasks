@@ -84,15 +84,15 @@ u_inode_ptr deserialize(std::string& str)
         return node;
     }
 
-    auto start_idx = 0;
+    auto start_it = body.begin();
     auto brackets = 0;
-    for (size_t i = 0; i < body.size(); ++i)
+    for (auto it = body.begin(); it != body.end(); ++it)
     {
         // TODO: instead of each time finds Node's borders
         //       we could go through and create Nodes on fly
         //       in order to reduce algorithm complexity
         //       but we need to maintain Node's relationship
-        switch (body[i])
+        switch (*it)
         {
             case node::body_start:
                 brackets++;
@@ -101,10 +101,10 @@ u_inode_ptr deserialize(std::string& str)
                 brackets--;
                 if (brackets == 0)
                 {
-                    const auto indent = i + sizeof(node::body_end);
-                    auto child_str = std::string(body, start_idx, indent);
+                    auto end_it = it + sizeof(node::body_start);
+                    auto child_str = std::string(start_it, end_it);
                     node->add_child(parser::deserialize(child_str));
-                    start_idx = indent + sizeof(node::node_div);
+                    start_it = end_it + sizeof(node::node_div);
                 }
                 break;
         }

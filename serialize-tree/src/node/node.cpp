@@ -26,11 +26,12 @@ void Node<T>::add_child(u_inode_ptr&& node)
 template <class T>
 void Node<T>::serialize(std::ofstream& out)
 {
-    const auto size = childs_.size();
-    out << value_ <<  node::body_div << node::body_start;
-    for (size_t i = 0; i < size; ++i) {
-        this->childs_[i]->serialize(out);
-        if (i != size- 1) {
+    out << value_ << node::body_div << node::body_start;
+    for (auto it = childs_.begin(); it != childs_.end(); ++it)
+    {
+        (*it)->serialize(out);
+        if (it != childs_.end() - 1)
+        {
             out << node::node_div;
         }
     }
@@ -41,7 +42,8 @@ template <class T>
 void Node<T>::print()
 {
     std::cout << value_ << std::endl;
-    for (auto& i : childs_) {
+    for (auto& i : childs_)
+    {
         i->print();
     }
 }
@@ -52,7 +54,8 @@ void Node<T>::debug()
     std::cout << "Value  : " << value_ << std::endl;
     std::cout << "Type   : " << typeid(value_).name() << std::endl;
     std::cout << "Childs : " << childs_.size() << std::endl;
-    for (auto& i : childs_) {
+    for (auto& i : childs_)
+    {
         i->debug();
     }
 }
