@@ -21,16 +21,16 @@ static u_inode_ptr new_node_(node::type t, std::string v)
     throw Exception("unknown Node type", static_cast<int>(errors::type));
 }
 
-static auto deserialize_node_(const std::string& in)
+static auto deserialize_node_(const std::string& str)
 {
     // TODO: support ignoring special symbols inside Node value
-    size_t pos = in.find(node::body_div);
+    size_t pos = str.find(node::body_div);
     if (pos == std::string::npos)
     {
         throw Exception("malformed deserialize file", static_cast<int>(errors::malformed));
     }
 
-    auto value = std::string(in.c_str(), 0, pos);
+    auto value = std::string(str.c_str(), 0, pos);
 
     auto type = node::type::integer;
     // TODO: does not allow special symbols inside Node value
@@ -44,15 +44,15 @@ static auto deserialize_node_(const std::string& in)
     }
 
     const auto start = pos + sizeof(node::body_div) + sizeof(node::body_start);
-    const auto end = in.size() - start - 1;
+    const auto end = str.size() - start - 1;
 
-    return std::make_tuple(type, value, std::string(in.c_str(), start, end));
+    return std::make_tuple(type, value, std::string(str.c_str(), start, end));
 }
 
 namespace parser
 {
 
-std::tuple<const char*, const char*> cmd_line(int argc, char const *argv[])
+std::pair<std::string, std::string> cmd_line(int argc, char const* argv[])
 {
     const char* usage = "usage: serialize-tree -i [PATH_TO_INPUT] -o [PATH_TO_OUT]";
 
@@ -69,7 +69,7 @@ std::tuple<const char*, const char*> cmd_line(int argc, char const *argv[])
         throw Exception(usage, static_cast<int>(errors::cmdline));
     }
 
-    return std::make_tuple(argv[2], argv[4]);
+    return std::make_pair(std::string(argv[2]), std::string(argv[4]));
 }
 
 /*
@@ -114,7 +114,7 @@ u_inode_ptr deserialize(std::string& str)
 }
 
 /*
- * Very simple cheker, without additional logic
+ * Very simple checker, without additional logic
  */
 bool check_deserialize(const std::string& str)
 {

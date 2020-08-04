@@ -11,14 +11,9 @@
 /*
  * deserialize - deserializes file content to the Tree
  */
-void Tree::deserialize(const char* file)
+void Tree::deserialize(const std::string& filename)
 {
-    if (file == nullptr)
-    {
-        throw Exception("deserialize file is null", static_cast<int>(errors::null));
-    }
-
-    std::ifstream ifs(file, std::ifstream::in);
+    std::ifstream ifs(filename, std::ifstream::in);
     if (!ifs.is_open())
     {
         throw Exception("can't open deserialize file", errno);
@@ -40,7 +35,7 @@ void Tree::deserialize(const char* file)
 
     if (!parser::check_deserialize(line))
     {
-        throw Exception("malformed deserialize string", static_cast<int>(errors::null));
+        throw Exception("malformed deserialize string", static_cast<int>(errors::malformed));
     }
 
     root_ = parser::deserialize(line);
@@ -49,19 +44,14 @@ void Tree::deserialize(const char* file)
 /*
  * serialize - serializes Tree content to the file
  */
-void Tree::serialize(const char* file)
+void Tree::serialize(const std::string& filename)
 {
     if (root_ == nullptr)
     {
         return;
     }
 
-    if (file == nullptr)
-    {
-        throw Exception("serialize file is null", static_cast<int>(errors::null));
-    }
-
-    std::ofstream ofs(file, std::ofstream::out);
+    std::ofstream ofs(filename, std::ofstream::out);
     if (!ofs.is_open())
     {
         throw Exception("can't open serialize file", errno);

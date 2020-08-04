@@ -4,7 +4,7 @@
 #include <exception>
 
 
-enum class errors{ none, null, malformed, type, cmdline };
+enum class errors{ none, malformed, type, cmdline };
 
 class Exception : public std::exception
 {

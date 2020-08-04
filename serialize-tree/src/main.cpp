@@ -9,12 +9,12 @@ int main(int argc, char const* argv[])
 {
     try
     {
-        auto [in, out] = parser::cmd_line(argc, argv);
+        auto args = parser::cmd_line(argc, argv);
 
         Tree tree;
-        tree.deserialize(in);
+        tree.deserialize(args.first);
         tree.print();
-        tree.serialize(out);
+        tree.serialize(args.second);
     }
     catch (Exception& e)
     {
