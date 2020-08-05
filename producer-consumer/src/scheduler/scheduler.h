@@ -20,11 +20,11 @@ typedef struct
 } scheduler_t;
 
 scheduler_t *scheduler_create();
-err_code_e scheduler_destroy(scheduler_t **scheduler);
+void scheduler_destroy(scheduler_t **scheduler);
 
 err_code_e scheduler_init(scheduler_t *scheduler, consumer_t *consumer);
 
 err_code_e scheduler_run(scheduler_t *scheduler);
-err_code_e scheduler_stop(scheduler_t *scheduler);
+void scheduler_stop(scheduler_t *scheduler);
 
 err_code_e scheduler_add(scheduler_t *scheduler, task_t *task);

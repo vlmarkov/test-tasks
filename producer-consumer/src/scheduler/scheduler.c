@@ -10,13 +10,10 @@
 
 static err_code_e scheduler_process(scheduler_t *scheduler)
 {
-    printf("%s(): invoke\n", __func__);
-
     pthread_mutex_lock(&(scheduler->mutex));
     if (scheduler->head == 0)
     {
         pthread_mutex_unlock(&(scheduler->mutex));
-        printf("%s(): done\n", __func__);
         return ERR_NONE;
     }
 
@@ -25,7 +22,7 @@ static err_code_e scheduler_process(scheduler_t *scheduler)
         if (consumer_get_worker_state(scheduler->consumer, i) == STATE_IDLE && scheduler->head > 0)
         {
             task_t *task = scheduler->tasks[scheduler->head - 1];
-            printf("%s(): task = %d\n", __func__, task->data);
+            printf("assign task = %d to worker %ld\n", task->data, i);
             if (consumer_add_worker_task(scheduler->consumer, i, task) == ERR_NONE)
             {
                 scheduler->tasks[scheduler->head - 1] = NULL;
@@ -35,8 +32,6 @@ static err_code_e scheduler_process(scheduler_t *scheduler)
     }
 
     pthread_mutex_unlock(&(scheduler->mutex));
-
-    printf("%s(): done\n", __func__);
     return ERR_NONE;
 }
 
@@ -61,25 +56,20 @@ static void* scheduler_loop(void* args)
         }
         sleep(1);
     }
+
+    return NULL;
 }
 
 scheduler_t *scheduler_create()
 {
-    printf("%s(): invoke\n", __func__);
-
-    scheduler_t *scheduler = (scheduler_t *)calloc(1, sizeof(scheduler_t));
-
-    printf("%s(): done\n", __func__);
-    return scheduler;
+    return (scheduler_t *)calloc(1, sizeof(scheduler_t));
 }
 
-err_code_e scheduler_destroy(scheduler_t **scheduler)
+void scheduler_destroy(scheduler_t **scheduler)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!*scheduler)
     {
-        return ERR_PTRNULL;
+        return;
     }
 
     if ((*scheduler)->state == STATE_RUN)
@@ -99,15 +89,10 @@ err_code_e scheduler_destroy(scheduler_t **scheduler)
     free((*scheduler)->tasks);
     free(*scheduler);
     *scheduler = NULL;
-
-    printf("%s(): done\n", __func__);
-    return ERR_NONE;
 }
 
 err_code_e scheduler_init(scheduler_t *scheduler, consumer_t *consumer)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!scheduler)
     {
         return ERR_PTRNULL;
@@ -123,20 +108,17 @@ err_code_e scheduler_init(scheduler_t *scheduler, consumer_t *consumer)
 
     scheduler->size = 100;
     scheduler->head = 0;
-    scheduler->tasks = (task_t **)calloc(100, sizeof(task_t*));
+    scheduler->tasks = (task_t **)calloc(scheduler->size, sizeof(task_t*));
     if (!scheduler->tasks)
     {
         return ERR_MEMORY;
     }
 
-    printf("%s(): done\n", __func__);
     return ERR_NONE;
 }
 
 err_code_e scheduler_run(scheduler_t *scheduler)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!scheduler)
     {
         return ERR_PTRNULL;
@@ -149,34 +131,26 @@ err_code_e scheduler_run(scheduler_t *scheduler)
 
     scheduler->state = STATE_RUN;
 
-    printf("%s(): done\n", __func__);
     return ERR_NONE;
 }
 
-err_code_e scheduler_stop(scheduler_t *scheduler)
+void scheduler_stop(scheduler_t *scheduler)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!scheduler)
     {
-        return ERR_PTRNULL;
+        return;
     }
     if (scheduler->state != STATE_RUN)
     {
-        return ERR_INTERNAL;
+        return;
     }
 
     scheduler->state = STATE_STOP;
     pthread_join(scheduler->pthread, NULL); // TODO: error check
-
-    printf("%s(): done\n", __func__);
-    return ERR_NONE;
 }
 
 err_code_e scheduler_add(scheduler_t *scheduler, task_t *task)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!scheduler)
     {
         return ERR_PTRNULL;
@@ -196,13 +170,12 @@ err_code_e scheduler_add(scheduler_t *scheduler, task_t *task)
     if (scheduler->head < scheduler->size)
     {
         scheduler->tasks[scheduler->head] = task;
-        printf("%s(): tasks[%ld] = %d\n", __func__,
+        printf("store tasks[%ld] value %d\n", 
             scheduler->head, scheduler->tasks[scheduler->head]->data);
         scheduler->head++;
         rc = ERR_NONE;
     }
     pthread_mutex_unlock(&(scheduler->mutex));
 
-    printf("%s(): done\n", __func__);
     return rc;
 }

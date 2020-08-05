@@ -34,29 +34,27 @@ static void* producer_loop(void* args)
         }
 
         task->data = rand_sleep;
-        scheduler_add(producer->scheduler, task);
+        if (scheduler_add(producer->scheduler, task) != ERR_NONE)
+        {
+            free(task);
+        }
 
         sleep(rand_sleep);
     }
+
+    return NULL;
 }
 
 producer_t *producer_create()
 {
-    printf("%s(): invoke\n", __func__);
-
-    producer_t * producer = (producer_t *)calloc(1, sizeof(producer_t));
-
-    printf("%s(): done\n", __func__);
-    return producer;
+    return (producer_t *)calloc(1, sizeof(producer_t));
 }
 
-err_code_e producer_destroy(producer_t **producer)
+void producer_destroy(producer_t **producer)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!*producer)
     {
-        return ERR_PTRNULL;
+        return;
     }
 
     if ((*producer)->state == STATE_RUN)
@@ -67,15 +65,10 @@ err_code_e producer_destroy(producer_t **producer)
 
     free(*producer);
     *producer = NULL;
-
-    printf("%s(): done\n", __func__);
-    return ERR_NONE;
 }
 
 err_code_e producer_init(producer_t *producer, scheduler_t *scheduler)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!producer)
     {
         return ERR_PTRNULL;
@@ -88,14 +81,11 @@ err_code_e producer_init(producer_t *producer, scheduler_t *scheduler)
     producer->scheduler = scheduler;
     producer->state = STATE_INIT;
 
-    printf("%s(): done\n", __func__);
     return ERR_NONE;
 }
 
 err_code_e producer_run(producer_t *producer)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!producer)
     {
         return ERR_PTRNULL;
@@ -112,26 +102,20 @@ err_code_e producer_run(producer_t *producer)
 
     producer->state = STATE_RUN;
 
-    printf("%s(): done\n", __func__);
     return ERR_NONE;
 }
 
-err_code_e producer_stop(producer_t *producer)
+void producer_stop(producer_t *producer)
 {
-    printf("%s(): invoke\n", __func__);
-
     if (!producer)
     {
-        return ERR_PTRNULL;
+        return;
     }
     if (producer->state != STATE_RUN)
     {
-        return ERR_INTERNAL;
+        return;
     }
 
     producer->state = STATE_STOP;
     pthread_join(producer->pthread, NULL); // TODO: error check
-
-    printf("%s(): done\n", __func__);
-    return ERR_NONE;
 }

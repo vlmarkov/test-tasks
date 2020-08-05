@@ -26,12 +26,12 @@ typedef struct
 } consumer_t;
 
 consumer_t *consumer_create();
-err_code_e consumer_destroy(consumer_t **consumer);
+void consumer_destroy(consumer_t **consumer);
 
 err_code_e consumer_init(consumer_t *consumer, const size_t size);
 
 err_code_e consumer_run(consumer_t *consumer);
-err_code_e consumer_stop(consumer_t *consumer);
+void consumer_stop(consumer_t *consumer);
 
 err_code_e consumer_add_worker_task(consumer_t *consumer, size_t worker, task_t *task);
 state_e consumer_get_worker_state(consumer_t *consumer, size_t worker);

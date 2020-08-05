@@ -19,6 +19,6 @@ err_code_e signal_block()
 {
     sigset_t mask = { 0 };
     sigfillset(&mask);
-    sigprocmask(SIG_SETMASK, &mask, NULL);
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);
     return ERR_NONE;
 }
