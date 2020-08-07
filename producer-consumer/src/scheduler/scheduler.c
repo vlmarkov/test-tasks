@@ -87,6 +87,7 @@ scheduler_t *scheduler_create(consumer_t *consumer)
     if (pthread_mutex_init(&(ptr->storage.mutex), NULL) != 0)
     {
         fprintf(stderr, "can't init mutex `scheduler` thread\n");
+        free(ptr);
         return NULL;
     }
     ptr->consumer = consumer;
