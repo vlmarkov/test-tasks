@@ -1,19 +1,19 @@
-#include <producer/producer.h>
+#include <internal/task.h>
 #include <signal/signal.h>
 #include <internal/state.h>
-#include <internal/task.h>
+#include <producer/producer.h>
 
-#include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <time.h> 
 
 
 static void* producer_loop(void* args)
 {
     if (!args)
     {
-        // TODO: error message
+        fprintf(stderr, "producer context is NULL in `producer` thread\n");
         exit(ERR_PTRNULL);
     }
 
@@ -22,14 +22,14 @@ static void* producer_loop(void* args)
     producer_t *producer = (producer_t *)args;
     srand(time(0));
 
-    while (producer->state == STATE_RUN)
+    while (producer->context.state == STATE_RUN)
     {
         int rand_sleep = rand() % 2; // 0 to 2 seconds
 
         task_t *task = (task_t*)calloc(1, sizeof(task_t));
         if (!task)
         {
-            // TODO: error message
+            fprintf(stderr, "`producer` can't create task\n");
             exit(ERR_MEMORY);
         }
 
@@ -45,77 +45,93 @@ static void* producer_loop(void* args)
     return NULL;
 }
 
-producer_t *producer_create()
+producer_t *producer_create(scheduler_t *scheduler)
 {
-    return (producer_t *)calloc(1, sizeof(producer_t));
+    if (!scheduler)
+    {
+        fprintf(stderr, "ptr `scheduler` is NULL\n");
+        return NULL;
+    }
+
+    producer_t *ptr = (producer_t *)calloc(1, sizeof(producer_t));
+    if (!ptr)
+    {
+        fprintf(stderr, "can't allocate memory for `producer`\n");
+        return NULL;
+    }
+
+    ptr->scheduler = scheduler;
+    ptr->context.state = STATE_INIT;
+
+    return ptr;
 }
 
 void producer_destroy(producer_t **producer)
 {
-    if (!*producer)
+    producer_t *ptr = *producer;
+    if (!ptr)
     {
         return;
     }
 
-    if ((*producer)->state == STATE_RUN)
+    printf("shutdown `producer` ...\n");
+
+    if (ptr->context.state == STATE_RUN)
     {
-        pthread_cancel((*producer)->pthread); // TODO: error check
-        pthread_join((*producer)->pthread, NULL); // TODO: error check
+        if (pthread_cancel(ptr->context.pthread) != 0)
+        {
+            fprintf(stderr, "can't cancel `producer` thread\n");
+        }
+        if (pthread_join(ptr->context.pthread, NULL) != 0)
+        {
+            fprintf(stderr, "can't join `producer` thread\n");
+        }
     }
 
-    free(*producer);
+    free(ptr);
     *producer = NULL;
 }
 
-err_code_e producer_init(producer_t *producer, scheduler_t *scheduler)
+err_code_e producer_run(producer_t *ptr)
 {
-    if (!producer)
+    if (!ptr)
     {
+        fprintf(stderr, "`producer` ptr is NULL\n");
         return ERR_PTRNULL;
     }
-    if (!scheduler)
+    if (ptr->context.state != STATE_INIT)
     {
-        return ERR_PTRNULL;
+        fprintf(stderr, "`producer` is not initialized\n");
+        return ERR_INTERNAL;
     }
 
-    producer->scheduler = scheduler;
-    producer->state = STATE_INIT;
+    if (pthread_create(&ptr->context.pthread, NULL, &producer_loop, ptr) != 0)
+    {
+        fprintf(stderr, "can't create `producer` thread\n");
+        return ERR_INTERNAL;
+    }
+
+    ptr->context.state = STATE_RUN;
 
     return ERR_NONE;
 }
 
-err_code_e producer_run(producer_t *producer)
+void producer_stop(producer_t *ptr)
 {
-    if (!producer)
-    {
-        return ERR_PTRNULL;
-    }
-    if (producer->state != STATE_INIT)
-    {
-        return ERR_INTERNAL;
-    }
-
-    if (pthread_create(&producer->pthread, NULL, &producer_loop, producer) != 0)
-    {
-        return ERR_INTERNAL;
-    }
-
-    producer->state = STATE_RUN;
-
-    return ERR_NONE;
-}
-
-void producer_stop(producer_t *producer)
-{
-    if (!producer)
+    if (!ptr)
     {
         return;
     }
-    if (producer->state != STATE_RUN)
+    if (ptr->context.state != STATE_RUN)
     {
         return;
     }
 
-    producer->state = STATE_STOP;
-    pthread_join(producer->pthread, NULL); // TODO: error check
+    printf("stop `producer` ...\n");
+
+    ptr->context.state = STATE_STOP;
+    if (pthread_join(ptr->context.pthread, NULL) != 0)
+    {
+        fprintf(stderr, "can't join `producer` thread\n");
+    }
 }

@@ -1,6 +1,5 @@
-#include <consumer/consumer.h>
-#include <internal/state.h>
 #include <signal/signal.h>
+#include <consumer/consumer.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +10,7 @@ static void* worker_loop(void* args)
 {
     if (!args)
     {
-        // TODO: error message
+        fprintf(stderr, "worker context is NULL in `worker` thread\n");
         exit(ERR_PTRNULL);
     }
 
@@ -20,9 +19,9 @@ static void* worker_loop(void* args)
 
     signal_block();
 
-    while (worker->state != STATE_STOP)
+    while (worker->context.state != STATE_STOP)
     {
-        if (worker->state == STATE_RUN)
+        if (worker->context.state == STATE_RUN)
         {
             pthread_mutex_lock(&(worker->mutex));
             printf("process task, value %d\n", worker->task->data);
@@ -30,11 +29,11 @@ static void* worker_loop(void* args)
             worker->task = NULL;
             pthread_mutex_unlock(&(worker->mutex));
             sleep(rand() % 3);
-            worker->statistic++;
+            worker->statistic_counter++;
 
-            if (worker->state != STATE_STOP)
+            if (worker->context.state != STATE_STOP)
             {
-                worker->state = STATE_IDLE;
+                worker->context.state = STATE_IDLE;
             }
         }
         sleep(1);
@@ -43,155 +42,183 @@ static void* worker_loop(void* args)
     return NULL;
 }
 
-consumer_t *consumer_create()
+consumer_t *consumer_create(const size_t size)
 {
-    return (consumer_t *)calloc(1, sizeof(consumer_t));
+    consumer_t *ptr = (consumer_t *)calloc(1, sizeof(consumer_t));
+    if (!ptr)
+    {
+        fprintf(stderr, "can't allocate memory for `consumer`\n");
+        return NULL;
+    }
+
+    ptr->workers = (worker_t *)calloc(size, sizeof(worker_t));
+    if (!ptr->workers)
+    {
+        fprintf(stderr, "can't allocate memory for `workers`\n");
+        free(ptr);
+        return NULL;
+    }
+
+    ptr->size = size;
+    ptr->state = STATE_INIT;
+
+    return ptr;
 }
 
 void consumer_destroy(consumer_t **consumer)
 {
-    if (!*consumer)
+    consumer_t *ptr = *consumer;
+    if (!ptr)
     {
         return;
     }
 
-    if ((*consumer)->state == STATE_RUN)
+    printf("shutdown `consumer` ...\n");
+
+    if (ptr->state == STATE_RUN)
     {
-        for (size_t i = 0; i < (*consumer)->size; ++i)
+        for (size_t i = 0; i < ptr->size; ++i)
         {
-            pthread_cancel((*consumer)->workers[i].pthread);       // TODO: error check
-            pthread_join((*consumer)->workers[i].pthread, NULL);   // TODO: error check
-            pthread_mutex_destroy(&(*consumer)->workers[i].mutex); // TODO: error check
+            if (pthread_cancel(ptr->workers[i].context.pthread) != 0)
+            {
+                fprintf(stderr, "can't cancel thread %ld for `consumer`\n", i);
+            }
+            if (pthread_join(ptr->workers[i].context.pthread, NULL) != 0)
+            {
+                fprintf(stderr, "can't join thread %ld for `consumer`\n", i);
+            }
+            if (pthread_mutex_destroy(&ptr->workers[i].mutex) != 0)
+            {
+                fprintf(stderr, "can't destroy mutex thread %ld for `consumer`\n", i);
+            }
         }
     }
 
-    for (size_t i = 0; i < (*consumer)->size; ++i)
+    for (size_t i = 0; i < ptr->size; ++i)
     {
-        free((*consumer)->workers[i].task);
+        free(ptr->workers[i].task);
     }
 
-    free((*consumer)->workers);
-    free(*consumer);
+    free(ptr->workers);
+    free(ptr);
     *consumer = NULL;
 }
 
-err_code_e consumer_init(consumer_t *consumer, const size_t size)
+err_code_e consumer_run(consumer_t *ptr)
 {
-    if (!consumer)
+    if (!ptr)
     {
+        fprintf(stderr, "can't run `consumer`, `consumer` ptr is NULL\n");
         return ERR_PTRNULL;
     }
-
-    consumer->workers = (worker_t *)calloc(size, sizeof(worker_t));
-    if (!consumer->workers)
+    if (ptr->state != STATE_INIT)
     {
-        return ERR_MEMORY;
-    }
-
-    consumer->size = size;
-    consumer->state = STATE_INIT;
-
-    return ERR_NONE;
-}
-
-err_code_e consumer_run(consumer_t *consumer)
-{
-    if (!consumer)
-    {
-        return ERR_PTRNULL;
-    }
-    if (consumer->state != STATE_INIT)
-    {
+        fprintf(stderr, "can't run `consumer`, is not initialized\n");
         return ERR_INTERNAL;
     }
 
-    for (size_t i = 0; i < consumer->size; ++i)
+    for (size_t i = 0; i < ptr->size; ++i)
     {
-        consumer->workers[i].state = STATE_IDLE;
-        if (pthread_mutex_init(&(consumer->workers[i].mutex), NULL) != 0)
+        ptr->workers[i].context.state = STATE_IDLE;
+        if (pthread_mutex_init(&(ptr->workers[i].mutex), NULL) != 0)
         {
+            fprintf(stderr, "can't init mutex thread %ld for `consumer`\n", i);
             return ERR_INTERNAL;
         }
-        if (pthread_create(&(consumer->workers[i].pthread), NULL, &worker_loop, &(consumer->workers[i])) != 0)
+        if (pthread_create(&(ptr->workers[i].context.pthread), NULL, &worker_loop, &(ptr->workers[i])) != 0)
         {
+            fprintf(stderr, "can't create thread %ld for `consumer`\n", i);
             return ERR_INTERNAL;
         }
     }
 
-    consumer->state = STATE_RUN;
+    ptr->state = STATE_RUN;
 
     return ERR_NONE;
 }
 
-void consumer_stop(consumer_t *consumer)
+void consumer_stop(consumer_t *ptr)
 {
-    if (!consumer)
+    if (!ptr)
     {
         return;
     }
-    if (consumer->state != STATE_RUN)
+    if (ptr->state != STATE_RUN)
     {
         return;
     }
 
-    consumer->state = STATE_STOP;
-    for (size_t i = 0; i < consumer->size; ++i)
+    printf("stop `consumer` ...\n");
+
+    ptr->state = STATE_STOP;
+    for (size_t i = 0; i < ptr->size; ++i)
     {
-        consumer->workers[i].state = STATE_STOP;
-        pthread_join(consumer->workers[i].pthread, NULL); // TODO: error check
+        ptr->workers[i].context.state = STATE_STOP;
+        if (pthread_join(ptr->workers[i].context.pthread, NULL) != 0)
+        {
+            fprintf(stderr, "can't join thread %ld for `consumer`\n", i);
+        }
     }
 }
 
-err_code_e consumer_add_worker_task(consumer_t *consumer, size_t worker, task_t *task)
+err_code_e consumer_add_worker_task(consumer_t *ptr, size_t worker_idx, task_t *task)
 {
-    if (!consumer)
+    if (!ptr)
     {
+        fprintf(stderr, "can't add worker task, consumer ptr is NULL\n");
         return ERR_PTRNULL;
+    }
+    if (ptr->size < worker_idx)
+    {
+        fprintf(stderr, "can't add worker task, no space\n");
+        return ERR_INTERNAL;
     }
     if (!task)
     {
+        fprintf(stderr, "can't add worker task, task ptr is NULL\n");
         return ERR_PTRNULL;
     }
-    if (consumer->size < worker)
-    {
-        return ERR_INTERNAL;
-    }
 
-    worker_t *w = &(consumer->workers[worker]);
+    worker_t *w = &(ptr->workers[worker_idx]);
 
     pthread_mutex_lock(&(w->mutex));
     w->task = task;
     pthread_mutex_unlock(&(w->mutex));
-    w->state = STATE_RUN;
+    w->context.state = STATE_RUN;
 
     return ERR_NONE;
 }
 
-state_e consumer_get_worker_state(consumer_t *consumer, size_t worker)
+state_e consumer_get_worker_state(consumer_t *ptr, size_t worker_idx)
 {
-    if (!consumer)
+    if (!ptr)
     {
+        fprintf(stderr, "can't get worker state, consumer ptr is NULL\n");
         return ERR_PTRNULL;
     }
-    if (consumer->size < worker)
+    if (ptr->size < worker_idx)
     {
+        fprintf(stderr, "can't get worker state, invalid worker index\n");
         return ERR_INTERNAL;
     }
 
-    return consumer->workers[worker].state;
+    return ptr->workers[worker_idx].context.state;
 }
 
-err_code_e consumer_print_statistic(consumer_t *consumer)
+err_code_e consumer_print_statistic(consumer_t *ptr)
 {
-    if (!consumer)
+    if (!ptr)
     {
+        fprintf(stderr, "can't print statistic, consumer ptr is NULL\n");
         return ERR_PTRNULL;
     }
 
-    for (size_t i = 0; i < consumer->size; ++i)
+    printf("\n+++++++++++++++++++++++++++\n");
+    for (size_t i = 0; i < ptr->size; ++i)
     {
-        printf("worker %ld done %d tasks\n", i, consumer->workers[i].statistic);
+        printf("+ worker %ld done %d tasks\n", i, ptr->workers[i].statistic_counter);
     }
+    printf("+++++++++++++++++++++++++++\n");
 
     return ERR_NONE;
 }

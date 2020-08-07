@@ -1,13 +1,13 @@
+#include <signal/signal.h>
 #include <producer/producer.h>
 #include <consumer/consumer.h>
 #include <scheduler/scheduler.h>
-#include <signal/signal.h>
 
 #include <stdio.h>
 #include <signal.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 
 static volatile int run = 1;
@@ -15,8 +15,8 @@ static volatile int show_stat = 0;
 
 static void signal_handler(int signo, siginfo_t *info, void *extra)
 {
-    extra = extra;
-    info = info;
+    extra = extra; // happy compiler
+    info  = info;  // happy compiler
 
     if (signo == SIGUSR1)
     {
@@ -37,37 +37,13 @@ static void signal_handler(int signo, siginfo_t *info, void *extra)
 
 static void cleanup(producer_t *p, consumer_t *c, scheduler_t *s)
 {
-    if (s)
-    {
-        printf("stop `scheduler` ...\n");
-        scheduler_stop(s);
-    }
-    if (p)
-    {
-        printf("stop `producer` ...\n");
-        producer_stop(p);
-    }
-    if (c)
-    {
-        printf("stop `consumer` ...\n");
-        consumer_stop(c);
-    }
+    if (s) scheduler_stop(s);
+    if (p) producer_stop(p);
+    if (c) consumer_stop(c);
 
-    if (s)
-    {
-        printf("shutdown `scheduler` ...\n");
-        scheduler_destroy(&s);
-    }
-    if (p)
-    {
-        printf("shutdown `producer` ...\n");
-        producer_destroy(&p);
-    }
-    if (c)
-    {
-        printf("shutdown `consumer` ...\n");
-        consumer_destroy(&c);
-    }
+    if (s) scheduler_destroy(&s);
+    if (p) producer_destroy(&p);
+    if (c) consumer_destroy(&c);
 }
 
 static void usage(const char *arg)
@@ -83,52 +59,36 @@ int main(int argc, char const *argv[])
         return ERR_CMDLINE;
     }
 
-    const int workers = atoi(argv[1]);
-
     signal_init(SIGUSR1, signal_handler);
     signal_init(SIGINT,  signal_handler);
     signal_init(SIGTERM, signal_handler);
 
-    producer_t *producer = producer_create();
-    if (!producer)
-    {
-        fprintf(stderr, "can't allocate memory for producer");
-        return ERR_MEMORY;
-    }
+    const int workers = atoi(argv[1]);
 
-    consumer_t *consumer = consumer_create();
+    producer_t  *producer  = NULL;
+    consumer_t  *consumer  = NULL;
+    scheduler_t *scheduler = NULL;
+
+    consumer = consumer_create(workers);
     if (!consumer)
     {
-        fprintf(stderr, "can't allocate memory for consumer");
-        cleanup(producer, NULL, NULL);
+        cleanup(producer, consumer, scheduler);
         return ERR_MEMORY;
     }
-
-    scheduler_t *scheduler = scheduler_create();
+    scheduler = scheduler_create(consumer);
     if (!scheduler)
     {
-        fprintf(stderr, "can't allocate memory for scheduler");
-        cleanup(producer, consumer, NULL);
+        cleanup(producer, consumer, scheduler);
+        return ERR_MEMORY;
+    }
+    producer = producer_create(scheduler);
+    if (!producer)
+    {
+        cleanup(producer, consumer, scheduler);
         return ERR_MEMORY;
     }
 
-    if (consumer_init(consumer, workers) != ERR_NONE)
-    {
-        cleanup(producer, consumer, scheduler);
-        return ERR_INTERNAL;
-    }
-    if (scheduler_init(scheduler, consumer) != ERR_NONE)
-    {
-        cleanup(producer, consumer, scheduler);
-        return ERR_INTERNAL;
-    }
-    if (producer_init(producer, scheduler) != ERR_NONE)
-    {
-        cleanup(producer, consumer, scheduler);
-        return ERR_INTERNAL;
-    }
-
-    if (consumer_run(consumer)  != ERR_NONE)
+    if (consumer_run(consumer) != ERR_NONE)
     {
         cleanup(producer, consumer, scheduler);
         return ERR_INTERNAL;
@@ -144,7 +104,9 @@ int main(int argc, char const *argv[])
         return ERR_INTERNAL;
     }
 
-    printf("> %d pid\n", getpid());
+    printf("\n*************************\n");
+    printf("* %d pid\n", getpid());
+    printf("*************************\n");
 
     while (run == 1)
     {

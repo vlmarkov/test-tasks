@@ -1,24 +1,18 @@
 #pragma once
 
-#include <scheduler/scheduler.h>
 #include <internal/errors.h>
-
-#include <pthread.h>
-#include <stdatomic.h>
+#include <internal/context.h>
+#include <scheduler/scheduler.h>
 
 
 typedef struct
 {
-    atomic_int   state;
-    pthread_t    pthread;
+    context_t    context;
     scheduler_t *scheduler;
 } producer_t;
 
-
 producer_t *producer_create();
-void producer_destroy(producer_t **producer);
+void producer_destroy(producer_t **ptr);
 
-err_code_e producer_init(producer_t *producer, scheduler_t *scheduler);
-
-err_code_e producer_run(producer_t *producer);
-void producer_stop(producer_t *producer);
+err_code_e producer_run(producer_t *ptr);
+void producer_stop(producer_t *ptr);

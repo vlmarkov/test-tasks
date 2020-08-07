@@ -3,9 +3,10 @@
 #include <signal.h>
 #include <stddef.h>
 
+
 err_code_e signal_init(int sig, void *handler)
 {
-    struct sigaction action;
+    struct sigaction action = { 0 };
     action.sa_flags = SA_SIGINFO;
     action.sa_sigaction = handler;
  
