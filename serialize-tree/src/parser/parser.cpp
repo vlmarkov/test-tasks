@@ -75,7 +75,7 @@ std::pair<std::string, std::string> cmd_line(int argc, char const* argv[])
 /*
  * deserialize - converts string into Tree structure
  */
-u_inode_ptr deserialize(std::string& str)
+u_inode_ptr deserialize(const std::string& str)
 {
     auto [type, value, body] = deserialize_node_(str);
     auto node = new_node_(type, value);
@@ -116,7 +116,7 @@ u_inode_ptr deserialize(std::string& str)
 /*
  * Very simple checker, without additional logic
  */
-bool check_deserialize(const std::string& str)
+bool check_deserialize(const std::string& str) noexcept
 {
     auto brackets = 0;
     for (const auto& ch : str)

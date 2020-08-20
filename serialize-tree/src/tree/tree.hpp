@@ -11,14 +11,14 @@ class Tree
         Tree() = default;
         ~Tree() = default;
 
-        Tree(const Tree&) = delete;             // Does
-        Tree(const Tree&&) = delete;            // not
-        Tree& operator=(const Tree&) = delete;  // allow
-        Tree& operator=(const Tree&&) = delete; // any kind of copy
+        Tree(const Tree&) = delete;             // DOES
+        Tree(const Tree&&) = delete;            // NOT
+        Tree& operator=(const Tree&) = delete;  // ALLOW
+        Tree& operator=(const Tree&&) = delete; // ANY KIND OF COPY
 
         void deserialize(const std::string& filename);
         void serialize(const std::string& filename);
-        void print();
+        void print() noexcept;
 
     private:
         std::unique_ptr<INode> root_;
