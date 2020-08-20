@@ -64,7 +64,7 @@ void Tree::serialize(const std::string& filename)
 /*
  * print - prints Tree to standard out if it contains any Nodes
  */
-void Tree::print()
+void Tree::print() noexcept
 {
     if (root_ != nullptr)
     {

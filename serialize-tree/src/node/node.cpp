@@ -18,13 +18,13 @@ Node<T>::Node(T value) : value_(value)
 }
 
 template <class T>
-void Node<T>::add_child(u_inode_ptr&& node)
+void Node<T>::add_child(u_inode_ptr&& node) noexcept
 {
     childs_.emplace_back(std::move(node));
 }
 
 template <class T>
-void Node<T>::serialize(std::ofstream& out)
+void Node<T>::serialize(std::ofstream& out) noexcept
 {
     out << value_ << node::body_div << node::body_start;
     for (auto it = childs_.begin(); it != childs_.end(); ++it)
@@ -39,22 +39,22 @@ void Node<T>::serialize(std::ofstream& out)
 }
 
 template <class T>
-void Node<T>::print()
+void Node<T>::print() noexcept
 {
     std::cout << value_ << std::endl;
-    for (auto& i : childs_)
+    for (const auto& i : childs_)
     {
         i->print();
     }
 }
 
 template <class T>
-void Node<T>::debug()
+void Node<T>::debug() noexcept
 {
     std::cout << "Value  : " << value_ << std::endl;
     std::cout << "Type   : " << typeid(value_).name() << std::endl;
     std::cout << "Childs : " << childs_.size() << std::endl;
-    for (auto& i : childs_)
+    for (const auto& i : childs_)
     {
         i->debug();
     }

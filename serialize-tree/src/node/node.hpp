@@ -21,16 +21,22 @@ enum class type { integer, real, string };
 template <typename T>
 class Node: public INode
 {
-    private:
-        T value_;
-        std::vector<u_inode_ptr> childs_;
-
     public:
         explicit Node(T value);
         ~Node() = default;
 
-        void add_child(u_inode_ptr&& node) override;
-        void serialize(std::ofstream& out) override;
-        void debug() override;
-        void print() override;
+        Node(const Node&) = delete;             // DOES
+        Node(const Node&&) = delete;            // NOT
+        Node& operator=(const Node&) = delete;  // ALLOW
+        Node& operator=(const Node&&) = delete; // ANY KIND OF COPY
+
+        void add_child(u_inode_ptr&& node) noexcept override;
+        void serialize(std::ofstream& out) noexcept override;
+        void debug() noexcept override;
+        void print() noexcept override;
+
+    private:
+        T value_;
+        std::vector<u_inode_ptr> childs_;
+
 };

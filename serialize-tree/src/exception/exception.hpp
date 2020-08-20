@@ -16,6 +16,6 @@ class Exception : public std::exception
         int code() const noexcept;
 
     private:
-        int         code_;
+        int code_;
         std::string err_;
 };
