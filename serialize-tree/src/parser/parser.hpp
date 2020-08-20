@@ -1,6 +1,6 @@
 #pragma once
 
-#include <node/node.hpp>
+#include <node/i-node.hpp>
 
 
 namespace parser

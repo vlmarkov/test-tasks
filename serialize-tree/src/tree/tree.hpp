@@ -2,6 +2,7 @@
 
 #include <node/node.hpp>
 
+
 /*
  * For more Tree structure details see readme file
  */
@@ -18,6 +19,7 @@ class Tree
 
         void deserialize(const std::string& filename);
         void serialize(const std::string& filename);
+
         void print() noexcept;
 
     private:

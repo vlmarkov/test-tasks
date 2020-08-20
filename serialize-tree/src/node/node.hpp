@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 
+
 namespace node
 {
 
@@ -30,13 +31,16 @@ class Node: public INode
         Node& operator=(const Node&) = delete;  // ALLOW
         Node& operator=(const Node&&) = delete; // ANY KIND OF COPY
 
+        // Provides different type of child node adding interface
+        void add_child(u_inode_ptr& node) noexcept override; // not in use
         void add_child(u_inode_ptr&& node) noexcept override;
+
         void serialize(std::ofstream& out) noexcept override;
+
         void debug() noexcept override;
         void print() noexcept override;
 
     private:
         T value_;
         std::vector<u_inode_ptr> childs_;
-
 };

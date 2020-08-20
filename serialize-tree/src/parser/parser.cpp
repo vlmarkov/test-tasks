@@ -1,24 +1,24 @@
+#include <node/node.hpp>
 #include <parser/parser.hpp>
 #include <exception/exception.hpp>
 
-#include <iostream>
 #include <tuple>
+#include <iostream>
 
 #include <string.h>
 
 
-static u_inode_ptr new_node_(node::type t, std::string v)
+static u_inode_ptr new_node_(node::type t, std::string v) noexcept
 {
-    switch (t)
+    if (t == node::type::real)
     {
-        case node::type::integer:
-            return std::make_unique<Node<int>>(std::stoi(v));
-        case node::type::real:
-            return std::make_unique<Node<double>>(std::stod(v));
-        case node::type::string:
-            return std::make_unique<Node<std::string>>(v);
+        return std::make_unique<Node<double>>(std::stod(v));
     }
-    throw Exception("unknown Node type", static_cast<int>(errors::type));
+    else if (t == node::type::string)
+    {
+        return std::make_unique<Node<std::string>>(v);
+    }
+    return std::make_unique<Node<int>>(std::stoi(v));
 }
 
 static auto deserialize_node_(const std::string& str)
@@ -113,7 +113,7 @@ u_inode_ptr deserialize(const std::string& str)
 }
 
 /*
- * Very simple checker, without additional logic
+ * A very simple checker, without additional logic
  */
 bool check_deserialize(const std::string& str) noexcept
 {
