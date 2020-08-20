@@ -101,9 +101,8 @@ u_inode_ptr deserialize(const std::string& str)
                 brackets--;
                 if (brackets == 0)
                 {
-                    auto end_it = it + sizeof(node::body_start);
-                    auto child_str = std::string(start_it, end_it);
-                    node->add_child(parser::deserialize(child_str));
+                    const auto end_it = it + sizeof(node::body_start);
+                    node->add_child(parser::deserialize(std::string(start_it, end_it)));
                     start_it = end_it + sizeof(node::node_div);
                 }
                 break;
