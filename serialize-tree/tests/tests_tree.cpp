@@ -5,7 +5,6 @@ int test_tree(const char* sample)
 {
     try
     {
-        const 
         TestWriter tw("./in.txt", sample);
         TestWriter tr("./out.txt", "");
 
