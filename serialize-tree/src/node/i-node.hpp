@@ -19,8 +19,8 @@ class INode
         INode& operator=(const INode&&) = delete; // ANY KIND OF COPY
 
         // Provides different type of child node adding interface
-        virtual void add_child(u_inode_ptr& node) noexcept = 0; // not in use
-        virtual void add_child(u_inode_ptr&& node) noexcept = 0;
+        virtual void add_child(u_inode_ptr& node) = 0; // not in use
+        virtual void add_child(u_inode_ptr&& node) = 0;
 
         virtual void serialize(std::ofstream& out) noexcept = 0;
 
