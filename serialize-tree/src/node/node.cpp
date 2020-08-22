@@ -18,13 +18,13 @@ Node<T>::Node(T value) : value_(value)
 }
 
 template <class T>
-void Node<T>::add_child(u_inode_ptr& node) noexcept
+void Node<T>::add_child(u_inode_ptr& node)
 {
     childs_.emplace_back(std::move(node));
 }
 
 template <class T>
-void Node<T>::add_child(u_inode_ptr&& node) noexcept
+void Node<T>::add_child(u_inode_ptr&& node)
 {
     childs_.emplace_back(std::move(node));
 }
