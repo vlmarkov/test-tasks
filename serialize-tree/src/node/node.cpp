@@ -29,7 +29,6 @@ void Node<T>::add_child(u_inode_ptr&& node)
     childs_.emplace_back(std::move(node));
 }
 
-
 template <class T>
 void Node<T>::serialize(std::ofstream& out) noexcept
 {

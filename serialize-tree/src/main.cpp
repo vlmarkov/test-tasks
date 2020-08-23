@@ -10,7 +10,6 @@ int main(int argc, char const* argv[])
     try
     {
         auto args = parser::cmd_line(argc, argv);
-
         Tree tree;
         tree.deserialize(args.first);
         tree.print();
