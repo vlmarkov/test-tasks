@@ -31,9 +31,7 @@ class Node: public INode
         Node& operator=(const Node&) = delete; // ALLOW
         Node& operator=(Node&&) = delete;      // ANY KIND OF COPY
 
-        // Provides different type of child node adding interface
         void add_child(u_inode_ptr&& node) override;
-
         void serialize(std::ofstream& out) noexcept override;
 
         void debug() noexcept override;
