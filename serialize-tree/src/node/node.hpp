@@ -26,13 +26,12 @@ class Node: public INode
         explicit Node(T value);
         ~Node() = default;
 
-        Node(const Node&) = delete;             // DOES
-        Node(const Node&&) = delete;            // NOT
-        Node& operator=(const Node&) = delete;  // ALLOW
-        Node& operator=(const Node&&) = delete; // ANY KIND OF COPY
+        Node(const Node&) = delete;            // DOES
+        Node(Node&&) = delete;                 // NOT
+        Node& operator=(const Node&) = delete; // ALLOW
+        Node& operator=(Node&&) = delete;      // ANY KIND OF COPY
 
         // Provides different type of child node adding interface
-        void add_child(u_inode_ptr& node) override; // not in use
         void add_child(u_inode_ptr&& node) override;
 
         void serialize(std::ofstream& out) noexcept override;

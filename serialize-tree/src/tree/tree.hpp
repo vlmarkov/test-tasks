@@ -12,10 +12,10 @@ class Tree
         Tree() = default;
         ~Tree() = default;
 
-        Tree(const Tree&) = delete;             // DOES
-        Tree(const Tree&&) = delete;            // NOT
-        Tree& operator=(const Tree&) = delete;  // ALLOW
-        Tree& operator=(const Tree&&) = delete; // ANY KIND OF COPY
+        Tree(const Tree&) = delete;            // DOES
+        Tree(Tree&&) = delete;                 // NOT
+        Tree& operator=(const Tree&) = delete; // ALLOW
+        Tree& operator=(Tree&&) = delete;      // ANY KIND OF COPY
 
         void deserialize(const std::string& filename);
         void serialize(const std::string& filename);
