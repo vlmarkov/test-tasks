@@ -31,6 +31,7 @@ public:
             delete counter_;
             delete data_;
             data_ = nullptr;
+            counter_ = nullptr;
         }
     }
 
@@ -85,6 +86,7 @@ public:
             delete counter_;
             delete[] data_;
             data_ = nullptr;
+            counter_ = nullptr;
         }
     }
 
