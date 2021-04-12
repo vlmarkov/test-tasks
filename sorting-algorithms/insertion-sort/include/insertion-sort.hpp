@@ -5,7 +5,7 @@
 
 
 template<typename T>
-void insertion_sort(std::vector<T>& v) // O(n2)
+void insertion_sort(std::vector<T>& v) // O(n^2)
 {
     for (size_t i = 0; i + 1 < v.size(); ++i)
     {

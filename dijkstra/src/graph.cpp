@@ -29,9 +29,9 @@ std::size_t Graph::size() const
 
 void Graph::print() const
 {
-    for (auto g : graph_)
+    for (const auto& g : graph_)
     {
-        for (auto i : g)
+        for (const auto& i : g)
         {
             std::cout << i << "\t";
         }

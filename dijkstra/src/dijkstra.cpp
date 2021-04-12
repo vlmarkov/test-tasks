@@ -113,13 +113,13 @@ std::vector<int> Dijkstra::find_path(Graph& g, std::size_t start, std::size_t en
         }
     }
 
-    for (auto d : distance)
+    for (const auto& d : distance)
     {
         std::cout << d << " ";
     }
     std::cout << std::endl;
 
-    for (auto p : prev)
+    for (const auto& p : prev)
     {
         std::cout << p << " ";
     }

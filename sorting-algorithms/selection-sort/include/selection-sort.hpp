@@ -5,7 +5,7 @@
 
 
 template<typename T>
-void selection_sort(std::vector<T>& v) // O(n2)
+void selection_sort(std::vector<T>& v) // O(n^2)
 {
     for (size_t i = 0; i + 1 < v.size(); ++i)
     {
@@ -14,7 +14,6 @@ void selection_sort(std::vector<T>& v) // O(n2)
         {
             if (v[j] < v[min])
             {
-                
                 min = j;
             }
         }

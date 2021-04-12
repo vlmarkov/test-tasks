@@ -58,12 +58,19 @@ public:
 template<typename T, std::size_t N>
 RingBuffer<T, N>::RingBuffer() : head_idx_{0}, tail_idx_{0}, catch_up_{false}
 {
-    if constexpr (std::is_trivial<T>::value) {
+    if constexpr (std::is_trivial<T>::value)
+    {
         for (auto& i : buffer_)
+        {
             i = T{};
-    } else {
+        }
+    }
+    else
+    {
         for (auto& i : buffer_)
+        {
             i.clear();
+        }
     }
 }
 
@@ -174,12 +181,6 @@ bool RingBuffer<T, N>::get_catch_up() const
 template<typename T, std::size_t N>
 void RingBuffer<T, N>::safe_move_idx_(std::size_t& idx)
 {
-    if (idx == N - 1)
-    {
-        idx = 0; // Go to the begining
-    }
-    else
-    {
-        idx += 1;
-    }
+    ++idx;
+    idx %= N;
 }

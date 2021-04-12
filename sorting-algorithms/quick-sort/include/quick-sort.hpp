@@ -3,6 +3,7 @@
 
 #include <vector>
 
+
 template<typename T>
 static int partition_(std::vector<T>& v, int l, int r)
 {
@@ -33,7 +34,7 @@ static void quick_sort_(std::vector<T>& v, int l, int r)
 }
 
 template<typename T>
-void quick_sort(std::vector<T>& v) // O(nlogn)
+void quick_sort(std::vector<T>& v) // nlogn -> O(n^2)
 {
     if (!v.empty())
     {

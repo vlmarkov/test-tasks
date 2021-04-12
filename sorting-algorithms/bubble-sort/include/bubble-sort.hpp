@@ -5,7 +5,7 @@
 
 
 template<typename T>
-void bubble_sort(std::vector<T>& v) // O(n2)
+void bubble_sort(std::vector<T>& v) // O(n^2)
 {
     for (size_t i = 0; i + 1 < v.size(); ++i)
     {
@@ -20,7 +20,7 @@ void bubble_sort(std::vector<T>& v) // O(n2)
 }
 
 template<typename T>
-void bubble_sort_v2(std::vector<T>& v) // O(n2)
+void bubble_sort_v2(std::vector<T>& v) // O(n^2)
 {
     auto swapped = false;
     do

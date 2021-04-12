@@ -11,9 +11,6 @@ public:
     ~Dijkstra();
 
     std::vector<int> find_path(Graph& g, std::size_t start, std::size_t end);
-
-private:
-    /* data */
 };
 
 #endif /* _DIJKSTRA_H_ */

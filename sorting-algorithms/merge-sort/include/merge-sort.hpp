@@ -3,34 +3,47 @@
 
 #include <vector>
 
+
 template<typename T>
-static void merge_sort_(std::vector<T>& v, std::vector<T>& copy, int l, int r)
+void merge_(std::vector<T>& v, int lb, int middle, int rb)
 {
-    if (l < r)
+    auto copy = v;
+    auto i = lb;
+    auto l = lb;
+    auto r = middle + 1;
+
+    while (l <= middle && r <= rb)
     {
-        auto middle = (l + r) / 2;
-        merge_sort_(v, copy, l, middle);
-        merge_sort_(v, copy, middle + 1, r);
-
-        auto k = l;
-        for (auto i = l, j = middle + 1; i <= middle || j <= r; ++k)
+        if (copy[l] <= copy[r])
         {
-            if (j > r || (i <= middle && v[i] < v[j]))
-            {
-                copy[k] = v[i];
-                ++i;
-            }
-            else
-            {
-                copy[k] = v[j];
-                ++j;
-            }
+            v[i++] = copy[l++];
         }
-
-        for (auto i = l; i <= r; ++i)
+        else
         {
-            v[i] = copy[i];
+            v[i++] = copy[r++];
         }
+    }
+
+    while (l <= middle)
+    {
+        v[i++] = copy[l++];
+    }
+
+    while (r <= rb)
+    {
+        v[i++] = copy[r++];
+    }
+}
+
+template<typename T>
+void merge_sort_(std::vector<T>& v, int lb, int rb)
+{
+    if (lb < rb)
+    {
+        const auto middle = (lb + rb) / 2;
+        merge_sort_(v, lb, middle);
+        merge_sort_(v, middle + 1, rb);
+        merge_(v, lb, middle, rb);
     }
 }
 
@@ -39,8 +52,7 @@ void merge_sort(std::vector<T>& v) // O(nlogn)
 {
     if (!v.empty())
     {
-        auto copy = v;
-        merge_sort_(v, copy, 0, v.size() - 1);
+        merge_sort_(v, 0, v.size() - 1);
     }
 }
 

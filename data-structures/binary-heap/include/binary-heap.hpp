@@ -32,7 +32,7 @@ public:
     friend std::ostream &operator<<(std::ostream& output, const BinaryHeap& bh)
     {
         std::size_t idx = 0; 
-        for (auto& i : bh.buffer_)
+        for (const auto& i : bh.buffer_)
         {
             output << "[" << idx << "] " << i << "\n";
             ++idx;
@@ -44,12 +44,19 @@ public:
 template<typename T, std::size_t N, HeapType H>
 BinaryHeap<T, N, H>::BinaryHeap() : capacity_{0}
 {
-    if constexpr (std::is_trivial<T>::value) {
+    if constexpr (std::is_trivial<T>::value)
+    {
         for (auto& i : buffer_)
+        {
             i = T{};
-    } else {
+        }
+    }
+    else
+    {
         for (auto& i : buffer_)
+        {
             i.clear();
+        }
     }
 }
 

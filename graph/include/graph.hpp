@@ -17,8 +17,10 @@ private:
     {
         std::cout << "[dfs] = " << vertex << std::endl;
         visited_[vertex] = true;
-        for (std::size_t neighbor = 0; neighbor < vertices_; ++neighbor) {
-            if (graph_[vertex][neighbor] && !visited_[neighbor]) {
+        for (std::size_t neighbor = 0; neighbor < vertices_; ++neighbor)
+        {
+            if (graph_[vertex][neighbor] && !visited_[neighbor])
+            {
                 visited_[neighbor] = true;
                 dfs_(neighbor);
             }
@@ -58,8 +60,9 @@ public:
 
     void print()
     {
-        for (auto g : graph_) {
-            for (auto i : g)
+        for (const auto& g : graph_)
+        {
+            for (const auto& i : g)
             {
                 std::cout << i << " ";
             }
@@ -69,20 +72,16 @@ public:
 
     void dfs(const size_t start = 0)
     {
-        for (auto v : visited_)
-        {
-            v = false;
-        }
+        visited_.clear();
         dfs_(start);
     }
 
     void bfs(const size_t start, const size_t end)
     {
         std::queue<std::size_t> queue;
-        for (auto v : visited_)
-        {
-            v = false;
-        }
+
+        visited_.clear();
+
         visited_[start] = true;
         queue.push(start);
 
