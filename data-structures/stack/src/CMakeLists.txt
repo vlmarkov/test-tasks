@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(lib_name stack-lib)
-set(lib_srcs stack.c)
+set(lib_srcs stack.cpp)
 
 add_library(${lib_name} STATIC ${lib_srcs})
 
