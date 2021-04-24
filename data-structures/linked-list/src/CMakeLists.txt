@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(lib_name linked-list-lib)
-set(lib_srcs linked-list.c)
+set(lib_srcs linked-list.cpp)
 
 add_library(${lib_name} STATIC ${lib_srcs})
 
