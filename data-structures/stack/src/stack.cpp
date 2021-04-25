@@ -3,28 +3,17 @@
 #include <iostream>
 
 
-Stack::Stack()
-{
-    ;
-}
-
-Stack::~Stack()
+Stack::node::node(int value, std::unique_ptr<node>&& next) :
+    value(value), next(std::move(next))
 {
     ;
 }
 
 void Stack::push(const int value)
 {
-    auto new_node = std::make_unique<node>();
-    
-    new_node->value = value;
-    new_node->next = std::move(head_);
-    
+    auto new_node = std::make_unique<node>(value, std::move(head_));
     head_ = std::move(new_node);
-
     size_++;
-
-    return;
 }
 
 int Stack::pop()
@@ -34,14 +23,11 @@ int Stack::pop()
         return -1;
     }
 
-    auto node = std::move(head_);
-    
-    head_ = std::move(node->next);
-    node->next.reset();
-
+    auto node_to_pop = std::move(head_);
+    head_ = std::move(node_to_pop->next);
     size_--;
 
-    return node->value;
+    return node_to_pop->value;
 }
 
 int Stack::top() const

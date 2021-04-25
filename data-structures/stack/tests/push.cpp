@@ -1,6 +1,6 @@
 #include <stack.hpp>
 
-#define BOOST_TEST_MODULE Test ring-buffer
+#define BOOST_TEST_MODULE Test push stack
 #include <boost/test/unit_test.hpp>
 
 

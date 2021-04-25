@@ -9,6 +9,7 @@ class Stack
 private:
     struct node
     {
+        node(int value, std::unique_ptr<node>&& next);
         int value{0};
         std::unique_ptr<node> next{nullptr};
     };
@@ -17,8 +18,8 @@ private:
     std::size_t size_{0};
 
 public:
-    Stack();
-    ~Stack();
+    Stack() = default;
+    ~Stack() = default;
 
     void push(const int value);
     int pop();
