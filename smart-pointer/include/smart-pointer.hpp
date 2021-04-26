@@ -15,51 +15,54 @@ public:
         {
             throw std::string("object must be valid");
         }
-        
-        data_ = t;
-        counter_ = new std::atomic_int32_t(1);
+
+        this->acquire_(t, new std::atomic_int32_t{0});
     }
 
     ~SmartPointer()
     {
-        if (*counter_ == 0) {
-            return;
-        }
-        
-        *counter_ -= 1;
-        if (*counter_ == 0) {
-            delete counter_;
-            delete data_;
-            data_ = nullptr;
-            counter_ = nullptr;
-        }
+        this->realease_();
     }
 
     SmartPointer(SmartPointer& rhs)
     {
-        data_ = rhs.data_;
-        counter_ = rhs.counter_;
-        *counter_ += 1;
+        this->acquire_(rhs.data_, rhs.counter_);
     }
 
     SmartPointer& operator=(SmartPointer& rhs)
     {
-        *counter_ -= 1;
-        data_ = rhs.data_;
-        counter_ = rhs.counter_;       
-        *counter_ += 1;
+        this->realease_();
+        this->acquire_(rhs.data_, rhs.counter_);
+
         return *this;
     }
 
-    T* get() {
+    T* get() const
+    {
         return data_;
     }
 
 private:
     std::atomic_int32_t *counter_{nullptr};
     T *data_{nullptr};
-};
 
+    void realease_()
+    {
+        if (--*counter_ == 0) {
+            delete data_;
+            data_ = nullptr;
+            delete counter_;
+            counter_ = nullptr;
+        }
+    }
+
+    void acquire_(T* data, std::atomic_int32_t* counter)
+    {
+        data_ = data;
+        counter_ = counter;
+        ++*counter_;
+    }
+};
 
 template <typename T>
 class SmartPointer<T[]>
@@ -69,50 +72,55 @@ public:
     {
         if (t == nullptr)
         {
-            throw std::string("object must be valid");
+            throw std::string("array of objects must be valid");
         }
-        
-        data_ = t;
-        counter_ = new std::atomic_int32_t(1);
+
+        this->acquire_(t, new std::atomic_int32_t{0});
     }
 
     ~SmartPointer()
     {
-        if (*counter_ == 0) {
-            return;
-        }
-        *counter_ -= 1;
-        if (*counter_ == 0) {
-            delete counter_;
-            delete[] data_;
-            data_ = nullptr;
-            counter_ = nullptr;
-        }
+        this->realease_();
     }
 
     SmartPointer(SmartPointer& rhs)
     {
-        data_ = rhs.data_;
-        counter_ = rhs.counter_;
-        *counter_ += 1;
+        this->acquire_(rhs.data_, rhs.counter_);
     }
 
     SmartPointer& operator=(SmartPointer& rhs)
     {
-        *counter_ -= 1;
-        data_ = rhs.data_;
-        counter_ = rhs.counter_;       
-        *counter_ += 1;
+        this->realease_();
+        this->acquire_(rhs.data_, rhs.counter_);
+
         return *this;
     }
 
-    T* get() {
+    T* get()const
+    {
         return data_;
     }
 
 private:
     std::atomic_int32_t *counter_{nullptr};
     T *data_{nullptr};
+
+    void realease_()
+    {
+        if (--*counter_ == 0) {
+            delete[] data_;
+            data_ = nullptr;
+            delete counter_;
+            counter_ = nullptr;
+        }
+    }
+
+    void acquire_(T* data, std::atomic_int32_t* counter)
+    {
+        data_ = data;
+        counter_ = counter;
+        ++*counter_;
+    }
 };
 
 #endif /* _SMART_POINTER_H_ */

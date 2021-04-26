@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(smart-pointer CXX)
 
-set(exec_name smart-pointer)
+set(exec_name example)
 
 add_executable(${exec_name} example.cpp)
 target_include_directories(${exec_name} PRIVATE ./include)
