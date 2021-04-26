@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(lib_name queue-lib)
-set(lib_srcs queue.c)
+set(lib_name double-ended-queue-lib)
+set(lib_srcs queue.cpp)
 
 add_library(${lib_name} STATIC ${lib_srcs})
 
