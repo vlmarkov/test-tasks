@@ -1,15 +1,9 @@
 #include <graph.hpp>
 
 
-Graph::Graph(const std::size_t n)
+Graph::Graph(const std::size_t vertices) : vertices_(vertices)
 {
-    vertices_ = n;
-    graph_ = std::vector<std::vector<uint32_t>>(n, std::vector<uint32_t>(n, 0));
-}
-
-Graph::~Graph()
-{
-    ;
+    graph_ = std::vector<std::vector<uint32_t>>(vertices_, std::vector<uint32_t>(vertices_, 0));
 }
 
 void Graph::set_edge(const std::size_t i, const std::size_t j, const std::size_t value)

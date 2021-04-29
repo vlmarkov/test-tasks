@@ -7,8 +7,8 @@
 class Dijkstra
 {
 public:
-    Dijkstra();
-    ~Dijkstra();
+    Dijkstra() = default;
+    ~Dijkstra() = default;
 
     std::vector<int> find_path(Graph& g, std::size_t start, std::size_t end);
 };

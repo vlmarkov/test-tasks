@@ -41,7 +41,8 @@ int main(int argc, char const *argv[])
 
     Dijkstra d;
     auto path = d.find_path(g, 0, 4);
-    for (auto p : path)
+    std::cout << "path: ";
+    for (const auto& p : path)
     {
         std::cout << p << " ";
     }

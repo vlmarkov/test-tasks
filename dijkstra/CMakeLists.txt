@@ -10,6 +10,7 @@ add_executable(${exec_name} example.cpp)
 target_include_directories(${exec_name} PRIVATE ./include)
 
 target_compile_options(${exec_name} PRIVATE "-Wall" "-Werror" "-O3")
+target_compile_features(${exec_name} PRIVATE cxx_std_20)
 target_link_libraries(${exec_name} dijkstra-lib)
 
 if(ENABLE_TESTING)

@@ -8,8 +8,8 @@
 class Graph
 {
 public:
-    Graph(const std::size_t n);
-    ~Graph();
+    explicit Graph(const std::size_t vertices);
+    ~Graph() = default;
 
     void set_edge(const std::size_t i, const std::size_t j, const std::size_t value);
     uint32_t get_edge(const std::size_t i, const std::size_t j) const;
