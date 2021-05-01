@@ -17,7 +17,7 @@ private:
 
 public:
     BinaryHeap();
-    ~BinaryHeap();
+    ~BinaryHeap() = default;
 
     int insert(const T& t);
     T remove();
@@ -58,12 +58,6 @@ BinaryHeap<T, N, H>::BinaryHeap() : capacity_{0}
             i.clear();
         }
     }
-}
-
-template<typename T, std::size_t N, HeapType H>
-BinaryHeap<T, N, H>::~BinaryHeap()
-{
-    ;
 }
 
 template<typename T, std::size_t N, HeapType H>
