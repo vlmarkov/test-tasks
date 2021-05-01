@@ -21,7 +21,7 @@ public:
 
     int insert(const T& t);
     T remove();
-    const T& top();
+    const T& top() const;
     void clear();
 
     HeapType type() const;
@@ -61,7 +61,7 @@ BinaryHeap<T, N, H>::BinaryHeap() : capacity_{0}
 }
 
 template<typename T, std::size_t N, HeapType H>
-const T& BinaryHeap<T, N, H>::top()
+const T& BinaryHeap<T, N, H>::top() const
 {
     return buffer_[0];
 }
