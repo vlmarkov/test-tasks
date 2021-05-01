@@ -1,0 +1,3 @@
+# Search Algorithms
+
+* binary search

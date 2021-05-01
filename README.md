@@ -1,3 +1,8 @@
-# test-tasks
+# Test Programming Tasks
 
-A repository where is placed test programming-tasks.
+I hope it will be useful for anyone who learning or train for a job interviews.
+
+Features:
+* languages: C, C++20
+* build-framework: cmake
+* unit-test: cmocka/boost
