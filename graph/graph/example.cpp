@@ -18,8 +18,9 @@ int main(int argc, char const *argv[])
     g.set_edge(2, 1, false);
     g.set_edge(2, 2, false);
 
-    g.bfs(0, 2);
-    g.dfs(0);
+    bfs(g, 0, 2);
+    dfs(g, 0);
+
     g.print();
 
     return 0;
