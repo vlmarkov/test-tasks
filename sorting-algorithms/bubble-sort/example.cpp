@@ -20,7 +20,7 @@ int main(int argc, char const *argv[])
         std::vector<int> v{5, 0, 3, 77, 15, -16, 34};
         bubble_sort_v2(v);
 
-        for (auto& i : v)
+        for (const auto& i : v)
         {
             std::cout << i << " ";
         }
