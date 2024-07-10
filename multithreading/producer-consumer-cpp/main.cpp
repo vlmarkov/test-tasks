@@ -18,22 +18,9 @@ class ThreadSafeQueue {
 
     public:
         ThreadSafeQueue(): mutex_(std::make_unique<std::mutex>()) {}
-        ~ThreadSafeQueue() = default;
 
         ThreadSafeQueue(const ThreadSafeQueue& rhs) = delete;
         ThreadSafeQueue& operator=(const ThreadSafeQueue& rhs) = delete;
-
-        ThreadSafeQueue(ThreadSafeQueue&& rhs) {
-            queue_ = std::move(queue_);
-            mutex_ = std::move(rhs.mutex_);
-        }
-
-        ThreadSafeQueue& operator=(ThreadSafeQueue&& rhs) {
-            queue_ = std::move(queue_);
-            mutex_ = std::move(rhs.mutex_);
-
-            return *this;
-        }
 
         void Push(const Task& task) {
             auto *raw_mutex_ptr = mutex_.get();
@@ -112,22 +99,6 @@ class Worker : public IWorker
         Worker(const Worker& rhs) = delete;
         Worker& operator=(const Worker& rhs) = delete;
 
-        Worker(Worker&& rhs) {
-            name_ = std::move(rhs.name_);
-            queue_ = std::move(queue_);
-            is_shutdown_.store(rhs.is_shutdown_);
-            thread_ = std::move(rhs.thread_);
-        }
-
-        Worker& operator=(Worker&& rhs) {
-            name_ = std::move(rhs.name_);
-            queue_ = std::move(queue_);
-            is_shutdown_.store(rhs.is_shutdown_);
-            thread_ = std::move(rhs.thread_);
-
-            return *this;
-        }
-
         void AddTask(const Task& task) override {
             queue_.Push(task);
         }
@@ -186,22 +157,6 @@ class Producer : public IProducer
 
         Producer(const Producer& rhs) = delete;
         Producer& operator=(const Producer& rhs) = delete;
-
-        Producer(Producer&& rhs) {
-            name_ = std::move(rhs.name_);
-            queue_ = std::move(queue_);
-            is_shutdown_.store(rhs.is_shutdown_);
-            thread_ = std::move(rhs.thread_);
-        }
-
-        Producer& operator=(Producer&& rhs) {
-            name_ = std::move(rhs.name_);
-            queue_ = std::move(queue_);
-            is_shutdown_.store(rhs.is_shutdown_);
-            thread_ = std::move(rhs.thread_);
-
-            return *this;
-        }
 
         Task GetTask() override {
             return queue_.Pop();
@@ -315,8 +270,7 @@ int main(/* args */) {
 
     Scheduler scheduler(workers, producers);
 
-    std::this_thread::sleep_for(std::chrono::seconds(30));
-
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     std::cout << "Finish scheduler programm..." << std::endl;
 
