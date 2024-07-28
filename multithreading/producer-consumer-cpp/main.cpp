@@ -252,7 +252,12 @@ std::unique_ptr<IProducer> CreateProducer(const int name) {
     return std::make_unique<Producer>(name);
 }
 
-int main(/* args */) {
+int main(int argc, char const *argv[])
+{
+    std::mutex m1;
+    std::mutex m2(std::move(m1));
+    //m1 = std::move(m2);
+
     const auto n_workers = 10;
 
     UniqueWorkers workers;
@@ -262,6 +267,8 @@ int main(/* args */) {
     producers.reserve(n_workers);
 
     std::cout << "Start scheduler programm..." << std::endl;
+
+    std::cout << "Concurrent threads are " << std::thread::hardware_concurrency() << std::endl;
 
     for (auto i = 0; i < n_workers; ++i) {
         producers.emplace_back(CreateProducer(i));
