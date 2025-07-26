@@ -1,14 +1,10 @@
 #include "scheduler.hpp"
 
-Scheduler::Scheduler(size_t workers) : workers_size_(workers)
+Scheduler::Scheduler(size_t thread_pool_size) : thread_pool_size_(thread_pool_size)
 {
-    thread_lock_free_list_.resize(workers_size_, AlignedLockFreeList{std::make_shared<LockFreeList>()});
+    thread_lock_free_list_.resize(thread_pool_size_, AlignedLockFreeList{std::make_shared<LockFreeList>()});
 
-    scheduler_ = std::jthread([&](std::stop_token st) {
-        run_scheduler_(st);
-    });
-
-    for (size_t i = 0; i < workers_size_; ++i) {
+    for (size_t i = 0; i < thread_pool_size_; ++i) {
         thread_pool_.emplace_back([&, tid = i](std::stop_token st) {
             run_worker_(st, tid); 
         });
@@ -16,40 +12,25 @@ Scheduler::Scheduler(size_t workers) : workers_size_(workers)
 }
 
 void Scheduler::add_task(Task t) {
-    lock_free_list_.push(std::move(t));
+    static thread_local int tid = 0;
+
+    thread_lock_free_list_[tid].ptr->push(std::move(t));
+
+    // Simple Round-Robin to show task distribution
+    tid++;
+    tid = tid % thread_pool_size_;
 }
 
 void Scheduler::stop() {
-    if (!scheduler_.joinable())
+    if (is_stop_)
         return;
-
-    scheduler_.request_stop();
-    scheduler_.join(); 
 
     for (auto& t : thread_pool_) {
         t.request_stop();
-        t.join();            
+        t.join();
     }
-}
 
-void Scheduler::run_scheduler_(std::stop_token stop_token) {
-    size_t tid = 0;
-
-    while (!stop_token.stop_requested()) {
-        auto* head = lock_free_list_.pop_all();
-
-        while (head != nullptr) {
-            thread_lock_free_list_[tid].ptr->push(head->task);
-            tid = (++tid % workers_size_);
-
-            auto* to_delete = head;
-            head = head->next;
-
-            delete to_delete;
-        }
-
-        std::this_thread::sleep_for(1s);
-    }
+    is_stop_ = true;
 }
 
 void Scheduler::run_worker_(std::stop_token stop_token, size_t tid) {

@@ -5,26 +5,26 @@
 
 #include <new>
 #include <thread>
+#include <memory>
 
-struct AlignedLockFreeList
+struct alignas(std::hardware_destructive_interference_size) AlignedLockFreeList
 {
-    alignas(std::hardware_destructive_interference_size) std::shared_ptr<LockFreeList> ptr;
+    // Avoids false-sharing
+    std::shared_ptr<LockFreeList> ptr;
 };
 
 class Scheduler {
 public:
-    Scheduler(size_t workers);
+    Scheduler(size_t thread_pool_size);
 
     void add_task(Task t);
     void stop();
 
 private:
-    const size_t workers_size_;
-    std::jthread scheduler_;
+    bool is_stop_{false};
+    const size_t thread_pool_size_;
     std::vector<std::jthread> thread_pool_;
-    LockFreeList lock_free_list_;
     std::vector<AlignedLockFreeList> thread_lock_free_list_;
 
-    void run_scheduler_(std::stop_token stop_token);
     void run_worker_(std::stop_token stop_token, size_t tid);
 };

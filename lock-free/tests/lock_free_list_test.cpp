@@ -4,7 +4,7 @@
 
 #include "../lock_free_list.hpp"
 
-TEST(LockFreeListTest, WithSomeWorkers) {
+TEST(LockFreeListTest, WithMultiplePushExpectValidTaskCounter) {
     auto counter = 0;
     LockFreeList lfl;
 

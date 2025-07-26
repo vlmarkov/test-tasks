@@ -1,18 +1,27 @@
 #include <gtest/gtest.h>
 
-#include <thread>
-
 #include "../scheduler.hpp"
 
-TEST(SchedulerTest, WithSomeWorkers) {
+TEST(SchedulerTest, WithOneCallbackCallExpectSuccessOnCallbackCall) {
     Scheduler scheduler(8);
 
-    std::thread t1 = std::thread([&](){
-        for (auto i = 0; i < 10; ++i) {
-            scheduler.add_task(Task{.callback = [](){}});
-        }
-    });
+    std::mutex m;
+    std::condition_variable cv;
+    bool done = false;
 
-    t1.join();
+    auto callback = [&]() {
+        std::unique_lock lk(m);
+        done = true;
+        cv.notify_one();
+    };
+
+    scheduler.add_task(Task{.callback = callback});
+
+    {
+        std::unique_lock lk(m);
+        cv.wait(lk, [&](){ return done; });
+        EXPECT_TRUE(done);
+    }
+
     scheduler.stop();
 }
