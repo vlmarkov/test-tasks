@@ -6,11 +6,14 @@
 #include <new>
 #include <thread>
 #include <memory>
+#include <condition_variable>
 
 struct alignas(std::hardware_destructive_interference_size) AlignedLockFreeList
 {
     // Avoids false-sharing
     std::shared_ptr<LockFreeList> ptr;
+    std::shared_ptr<std::condition_variable> cv;
+    std::shared_ptr<std::mutex> mtx;
 };
 
 class Scheduler {

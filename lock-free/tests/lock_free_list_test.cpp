@@ -22,7 +22,7 @@ TEST(LockFreeListTest, WithMultiplePushExpectValidTaskCounter) {
 
     {
         LockFreeList::Node* head = lfl.pop_all();
-        while(head != nullptr) {
+        while (head != nullptr) {
             LockFreeList::Node* next = head->next;
             delete head;
             head = next;
@@ -43,7 +43,7 @@ TEST(LockFreeListTest, WithMultiplePushExpectValidTaskCounter) {
 
     {
         LockFreeList::Node* head = lfl.pop_all();
-        while(head != nullptr) {
+        while (head != nullptr) {
             LockFreeList::Node* next = head->next;
             delete head;
             head = next;
@@ -53,4 +53,18 @@ TEST(LockFreeListTest, WithMultiplePushExpectValidTaskCounter) {
     }
 
     EXPECT_EQ(counter, 3000);
+}
+
+TEST(LockFreeListTest, WithEmptyExpectEmpty) {
+    LockFreeList lfl;
+
+    EXPECT_TRUE(lfl.empty());
+}
+
+
+TEST(LockFreeListTest, WithOnePushExpectNonEmpty) {
+    LockFreeList lfl;
+
+    lfl.push(Task());
+    EXPECT_FALSE(lfl.empty());
 }

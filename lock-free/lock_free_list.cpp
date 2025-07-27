@@ -11,7 +11,7 @@ void LockFreeList::push(Task t) {
         // This creates a synchronization point between the two threads. 
         current_head = head_.load(std::memory_order_acquire);
         new_head->next.store(current_head, std::memory_order_release);
-    
+
     // It compares the value of an atomic variable with an expected value,
     // and if they are equal,
     // replaces the atomic variable's value with a desired value
@@ -35,4 +35,8 @@ LockFreeList::Node* LockFreeList::pop_all() {
     // replaces it with a new value, and returns the old value
     // that was previously held
     return head_.exchange(nullptr, std::memory_order_acq_rel);
+}
+
+bool LockFreeList::empty() const {
+    return head_.load() == nullptr;
 }

@@ -13,6 +13,7 @@ public:
 
     void push(Task t);
     Node* pop_all();
+    bool empty() const;
 
 private:
     std::atomic<Node*> head_{nullptr};
